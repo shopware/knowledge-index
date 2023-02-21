@@ -1,0 +1,20 @@
+name: Build, deploy, test
+on: [push, pull_request]
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build, deploy and test
+        run: | 
+          docker build -t ai-ml-server -f ./Dockerfile .
+          docker swarm init
+          docker stack deploy ai-ml -c docker-compose.yml --prune
+
+          until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a -q --filter ancestor=ai-ml-server --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
+
+          docker container exec -i $(docker ps -f name=ai-ml_ai-ml --format "{{.ID}}") pytest

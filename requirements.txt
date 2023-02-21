@@ -1,0 +1,11 @@
+# OpenAI and document tokenization
+openapi
+tiktoken
+
+# test suite - https://fastapi.tiangolo.com/tutorial/testing/#run-it
+pytest
+
+# web server - https://fastapi.tiangolo.com/deployment/docker/#package-requirements
+fastapi>=0.68.0,<0.69.0
+pydantic>=1.8.0,<2.0.0
+uvicorn>=0.15.0,<0.16.0

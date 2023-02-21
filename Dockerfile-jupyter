@@ -1,0 +1,21 @@
+FROM jupyter/datascience-notebook:notebook-6.5.2
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+RUN ln -s /home/jovyan/.local/share/pypoetry/venv/bin/poetry /opt/conda/bin/
+
+#RUN export PATH="/home/jovyan/.local/share/pypoetry/venv/bin/:$PATH" 
+
+#RUN echo 'export PATH="/home/jovyan/.local/share/pypoetry/venv/bin/:$PATH"' > ~/.bashrc
+
+#RUN cat ~/.bashrc
+
+#RUN source ~/.bashrc
+
+#RUN echo $PATH
+
+RUN which poetry
+
+RUN pip install openai tiktoken
+
+RUN poetry
