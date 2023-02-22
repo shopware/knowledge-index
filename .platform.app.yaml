@@ -20,7 +20,7 @@ type: 'python:3.9'
 #    source_path: uploads
 
 # The size of the persistent disk of the application (in MB).
-disk: 2048
+disk: 1024
 
 hooks:
     build: |
