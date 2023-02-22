@@ -15,4 +15,5 @@ services:
     ports:
       - 10001:80
     volumes:
-      - ./app:/code/app
+    #  - ./app:/code/app
+      - ./:/code
