@@ -18,9 +18,15 @@ jobs:
 #          docker container exec -i $(docker ps -f name=ai-ml_ai-ml --format "{{.ID}}") pytest
 
       - name: Build, deploy and test
+        env:
+          FLY_ACCESS_TOKEN: 
         run: | 
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
           docker swarm init
           docker stack deploy ai-ml -c docker-compose.yml --prune
           until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a -q --filter ancestor=ai-ml-web --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
+
+          curl -L https://fly.io/install.sh | sh
+          flycli auth docker --access-token {{ secrets.FLY_ACCESS_TOKEN }}
+          flycli deploy --local-only -i ai-ml-web:latest

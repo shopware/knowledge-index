@@ -16,6 +16,9 @@ RUN poetry install
 
 # RUN poetry shell
 
+#RUN wget https://domain.com/index.faiis
+#RUN wget https://domain.com/index.pki
+
 # add --proxy-headers when running behind proxy
 CMD ["uvicorn", "web.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
