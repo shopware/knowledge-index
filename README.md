@@ -1,10 +1,12 @@
+# Docker
+
 Build docker image with:
  - `python` v3.10
  - `poetry` (+ install dependencies)
- - run `uvicorn` server
+ - `uvicorn` server
 
 ```bash
-$ docker build -t ai-ml-server -f ./Dockerfile .
+$ docker build -t ai-ml-web -f ./Dockerfile-web .
 ```
 
 Init docker swarm and deploy stack.
@@ -20,6 +22,30 @@ Run tests
 ```bash
 $ docker container exec -it $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest
 ```
+
+# Local
+
+Install dependencies with poetry.
+
+```bash
+$ poetry install
+```
+
+Enter isolated poetry shell.
+
+```bash
+$ poetry shell
+```
+
+Run uvicorn web server.
+
+```bash
+uvicorn web.main:app --host 0.0.0.0 --port 80 --reload
+```
+
+# Devenv?
+
+# Notes
 
 Notes:
  - auto-reload is supported with `--reload` parameter in the `uvicorn` entrypoint
