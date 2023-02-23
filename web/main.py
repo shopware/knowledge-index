@@ -25,7 +25,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex='^(http:\/\/localhost(:\d+)?|https?:\/\/[a-zA-Z0-9-]+\.shopware\.com|https?:\/\/[a-zA-Z0-9-]+\.vercel\.app)$',
+    allow_origin_regex="^(http:\/\/localhost(:\d+)?|https?:\/\/[a-zA-Z0-9-]+\.shopware\.com|https?:\/\/[a-zA-Z0-9-]+\.vercel\.app)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,9 +82,12 @@ def post_query(search: Query):
 
     for result in results:
         source = result[0].metadata["source"]
+        heading = result[0].metadata["heading"]
         excerpt = result[0].page_content
         score = result[1]
-        mappedResults.append({"source": source, "score": str(score)})
+        mappedResults.append(
+            {"source": source, "score": str(score), "heading": heading}
+        )
 
     return {"results": mappedResults}
 
