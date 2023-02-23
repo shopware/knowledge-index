@@ -9,6 +9,11 @@ from .query import query
 
 import logging
 
+
+class Query(BaseModel):
+    query: str
+
+
 app = FastAPI()
 
 
@@ -25,24 +30,6 @@ def read_item(item_id: int, q: Union[str, None] = None):
 @app.post("/ingest")
 def post_ingest():
     return {"success": ingest()}
-
-
-@app.get("/query/{search}")
-def get_query(search: str):
-    results = query(search)
-    mappedResults = []
-
-    for result in results:
-        source = result[0].metadata["source"]
-        excerpt = result[0].page_content
-        score = result[1]
-        mappedResults.append({"source": source, "score": str(score)})
-
-    return {"results": mappedResults}
-
-
-class Query(BaseModel):
-    query: str
 
 
 @app.post("/query")
