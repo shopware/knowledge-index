@@ -4,11 +4,12 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 
-from .embedding import get_embedding_fn
+from .config import get_embedding_fn
+from .config import data_dir
 
 
 def ingest():
-    loader = DirectoryLoader("data/", glob="**/*.md", loader_cls=TextLoader)
+    loader = DirectoryLoader(data_dir(), glob="**/*.md", loader_cls=TextLoader)
 
     docs = loader.load()
 

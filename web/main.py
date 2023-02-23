@@ -11,6 +11,7 @@ import shutil
 
 from .ingest import ingest
 from .query import query
+from .config import data_dir
 
 import logging
 
@@ -30,7 +31,7 @@ def read_root():
 @app.post("/upload-input")
 async def post_upload_input(content: UploadFile):
     input_zip = "input.zip"
-    output_dir = "/data"
+    output_dir = data_dir()
 
     if os.path.exists(input_zip):
         os.remove(input_zip)
@@ -46,9 +47,11 @@ async def post_upload_input(content: UploadFile):
         for f in files:
             file_path = os.path.join(output_dir, f)
             if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path) 
+                os.unlink(file_path)
             elif os.path.isdir(file_path):
-                shutil.rmtree(file_path,)
+                shutil.rmtree(
+                    file_path,
+                )
 
     with zipfile.ZipFile(input_zip, "r") as zip_ref:
         zip_ref.extractall(output_dir)

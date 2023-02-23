@@ -1,6 +1,6 @@
 from langchain.vectorstores import FAISS
 
-from .embedding import get_embedding_fn
+from .config import get_embedding_fn
 
 
 def query(query: str):

@@ -11,3 +11,7 @@ def get_embedding_fn():
 
         url = "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
         return TensorflowHubEmbeddings(model_url=url)
+
+
+def data_dir():
+    return os.environ.get("DATA_DIR", "/data")
