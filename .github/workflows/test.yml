@@ -4,11 +4,13 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
     steps:
+      - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Checkout
         uses: actions/checkout@v3
-        uses: superfly/flyctl-actions/setup-flyctl@master
 
 #      - name: Build, deploy and test
 #        run: | 
@@ -19,8 +21,6 @@ jobs:
 #          docker container exec -i $(docker ps -f name=ai-ml_ai-ml --format "{{.ID}}") pytest
 
       - name: Build, deploy and test
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
         run: | 
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
           docker swarm init
