@@ -5,7 +5,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 
 from .config import get_embedding_fn
-from .config import data_dir
+from .config import data_dir, db_dir
 
 
 def ingest():
@@ -26,6 +26,6 @@ def ingest():
 
     db = FAISS.from_documents(docs_splitted, get_embedding_fn())
 
-    FAISS.save_local(db, "_db")
+    FAISS.save_local(db, db_dir())
 
     return True
