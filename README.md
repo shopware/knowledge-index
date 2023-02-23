@@ -1,10 +1,13 @@
+# Setup
+## Docker
+
 Build docker image with:
  - `python` v3.10
  - `poetry` (+ install dependencies)
- - run `uvicorn` server
+ - `uvicorn` server
 
 ```bash
-$ docker build -t ai-ml-server -f ./Dockerfile .
+$ docker build -t ai-ml-web:latest -f ./Dockerfile-web .
 ```
 
 Init docker swarm and deploy stack.
@@ -21,12 +24,60 @@ Run tests
 $ docker container exec -it $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest
 ```
 
+## Local
+
+Install dependencies with poetry.
+
+```bash
+$ poetry install
+```
+
+Enter isolated poetry shell.
+
+```bash
+$ poetry shell
+```
+
+Run uvicorn web server.
+
+```bash
+$ uvicorn web.main:app --host 0.0.0.0 --port 80 --reload
+```
+
+## Devenv?
+
+# Ingestion & search
+
+Upload .zip containing .md files.
+
+```bash
+$ curl -v -F content=@test.zip https://ai-ml.fly.dev/upload-input
+```
+
+Ingest uploaded documents.
+
+```bash
+$ curl -X POST https://ai-ml.fly.dev/ingest
+```
+
+Search
+
+```bash
+$ curl \
+ -X POST \
+ --header "Content-Type: application/json" \
+ --data '{"query":"keywords"}' \
+ https://ai-ml.fly.dev/query
+```
+
+# Notes
+
 Notes:
  - auto-reload is supported with `--reload` parameter in the `uvicorn` entrypoint
 
 Fly.io deployment:
  - See [./.github/workflows/test.yml](./.github/workflows/test.yml)
- - `fly auth docker --access-token YmXTfdnd82-t1dedLsi48tx_bJzczU2NNivei_zcxkk`
- - `fly deploy -i ai-ml-server:latest`
- - `fly secrets set OPENAI_API_KEY="..."`
- - `fly volumes create input_docs --region ams --size 1` + see [./fly-toml](./fly-toml)
+ - `fly auth docker --access-token ...`
+ - `fly deploy -i ai-ml-server:latest` - push local image to fly.io, then deploy
+ - `fly secrets set OPENAI_API_KEY="..."` - or fallback to tensorflow
+ - `fly volumes create data --region ams --size 1` + see [./fly-toml](./fly-toml)
