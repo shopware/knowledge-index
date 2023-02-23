@@ -4,3 +4,8 @@
 # Devenv
 .devenv*
 devenv.local.nix
+
+# Inputs
+docs/
+input.zip
+_db
