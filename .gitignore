@@ -6,6 +6,6 @@
 devenv.local.nix
 
 # Inputs
-docs/
+data/*
 input.zip
 _db
