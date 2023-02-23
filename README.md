@@ -1,4 +1,5 @@
-# Docker
+# Setup
+## Docker
 
 Build docker image with:
  - `python` v3.10
@@ -23,7 +24,7 @@ Run tests
 $ docker container exec -it $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest
 ```
 
-# Local
+## Local
 
 Install dependencies with poetry.
 
@@ -43,7 +44,31 @@ Run uvicorn web server.
 $ uvicorn web.main:app --host 0.0.0.0 --port 80 --reload
 ```
 
-# Devenv?
+## Devenv?
+
+# Ingestion & search
+
+Upload .zip containing .md files.
+
+```bash
+$ curl -v -F content=@test.zip https://ai-ml.fly.dev/upload-input
+```
+
+Ingest uploaded documents.
+
+```bash
+$ curl -X POST https://ai-ml.fly.dev/ingest
+```
+
+Search
+
+```bash
+$ curl \
+ -X POST \
+ --header "Content-Type: application/json" \
+ --data '{"query":"keywords"}' \
+ https://ai-ml.fly.dev/query
+```
 
 # Notes
 
