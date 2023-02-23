@@ -28,5 +28,5 @@ jobs:
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
 
           curl -L https://fly.io/install.sh | sh
-          flycli auth docker --access-token {{ secrets.FLY_ACCESS_TOKEN }}
-          flycli deploy --local-only -i ai-ml-web:latest
+          /home/runner/.fly/bin/flyctl auth docker --access-token {{ secrets.FLY_ACCESS_TOKEN }}
+          /home/runner/.fly/bin/flyctl deploy --local-only -i ai-ml-web:latest
