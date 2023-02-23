@@ -24,7 +24,7 @@ def read_root():
 @app.post("/upload-input")
 async def post_upload_input(content: UploadFile):
     input_zip = "input.zip"
-    output_dir = "docs"
+    output_dir = "/data"
 
     if os.path.exists(input_zip):
         os.remove(input_zip)
