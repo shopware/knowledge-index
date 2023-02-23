@@ -14,4 +14,7 @@ def get_embedding_fn():
 
 
 def data_dir():
-    return os.environ.get("DATA_DIR", "/data")
+    return os.environ.get("DATA_DIR", "/data/docs")
+
+def db_dir():
+    return os.environ.get("DB_DIR", "/data/db")

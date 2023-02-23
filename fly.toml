@@ -40,5 +40,5 @@ processes = []
     timeout = "2s"
 
 [mounts]
-  source="input_docs"
+  source="data"
   destination="/data"

@@ -7,5 +7,5 @@ devenv.local.nix
 
 # Inputs
 data/*
+db/*
 input.zip
-_db
