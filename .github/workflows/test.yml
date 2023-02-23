@@ -8,6 +8,7 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
 #      - name: Build, deploy and test
 #        run: | 
@@ -19,7 +20,7 @@ jobs:
 
       - name: Build, deploy and test
         env:
-          FLY_ACCESS_TOKEN: 
+          FLY_API_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
         run: | 
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
           docker swarm init
@@ -27,6 +28,4 @@ jobs:
           until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a -q --filter ancestor=ai-ml-web --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
 
-          curl -L https://fly.io/install.sh | sh
-          /home/runner/.fly/bin/flyctl auth docker --access-token {{ secrets.FLY_ACCESS_TOKEN }}
-          /home/runner/.fly/bin/flyctl deploy --local-only -i ai-ml-web:latest
+          flyctl deploy --local-only -i ai-ml-web:latest
