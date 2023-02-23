@@ -25,7 +25,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex="((localhost:\d{2,4})|(https://[^/]*shopware\.com)|(https://[^/]*.vercel.app))",
+    allow_origin_regex='^(http:\/\/localhost(:\d+)?|https?:\/\/[a-zA-Z0-9-]+\.shopware\.com|https?:\/\/[a-zA-Z0-9-]+\.vercel\.app)$',
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
