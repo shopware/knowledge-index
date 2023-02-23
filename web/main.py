@@ -1,5 +1,6 @@
 from typing import Union
 from fastapi import FastAPI, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
 
@@ -21,6 +22,14 @@ class Query(BaseModel):
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex="((localhost:\d{2,4})|(https://[^/]*shopware\.com)|(https://[^/]*.vercel.app))",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
