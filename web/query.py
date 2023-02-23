@@ -1,10 +1,12 @@
 from langchain.vectorstores import FAISS
-from langchain.embeddings.openai import OpenAIEmbeddings
+
+from .embedding import get_embedding_fn
+
 
 def query(query: str):
     embeddings = OpenAIEmbeddings()
 
-    db = FAISS.load_local('_db', embeddings)
+    db = FAISS.load_local("_db", get_embedding_fn())
 
     results = db.similarity_search_with_score(query, 5)
 
