@@ -23,3 +23,10 @@ $ docker container exec -it $(docker ps -f name=ai-ml_web --format "{{.ID}}") py
 
 Notes:
  - auto-reload is supported with `--reload` parameter in the `uvicorn` entrypoint
+
+Fly.io deployment:
+ - See [./.github/workflows/test.yml](./.github/workflows/test.yml)
+ - `fly auth docker --access-token YmXTfdnd82-t1dedLsi48tx_bJzczU2NNivei_zcxkk`
+ - `fly deploy -i ai-ml-server:latest`
+ - `fly secrets set OPENAI_API_KEY="..."`
+ - `fly volumes create input_docs --region ams --size 1` + see [./fly-toml](./fly-toml)
