@@ -6,7 +6,7 @@ Build docker image with:
  - `uvicorn` server
 
 ```bash
-$ docker build -t ai-ml-web -f ./Dockerfile-web .
+$ docker build -t ai-ml-web:latest -f ./Dockerfile-web .
 ```
 
 Init docker swarm and deploy stack.
@@ -40,7 +40,7 @@ $ poetry shell
 Run uvicorn web server.
 
 ```bash
-uvicorn web.main:app --host 0.0.0.0 --port 80 --reload
+$ uvicorn web.main:app --host 0.0.0.0 --port 80 --reload
 ```
 
 # Devenv?
@@ -52,7 +52,7 @@ Notes:
 
 Fly.io deployment:
  - See [./.github/workflows/test.yml](./.github/workflows/test.yml)
- - `fly auth docker --access-token YmXTfdnd82-t1dedLsi48tx_bJzczU2NNivei_zcxkk`
- - `fly deploy -i ai-ml-server:latest`
- - `fly secrets set OPENAI_API_KEY="..."`
- - `fly volumes create input_docs --region ams --size 1` + see [./fly-toml](./fly-toml)
+ - `fly auth docker --access-token ...`
+ - `fly deploy -i ai-ml-server:latest` - push local image to fly.io, then deploy
+ - `fly secrets set OPENAI_API_KEY="..."` - or fallback to tensorflow
+ - `fly volumes create data --region ams --size 1` + see [./fly-toml](./fly-toml)
