@@ -5,7 +5,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 
 def ingest():
-    loader = DirectoryLoader('data/', glob="**/*.md", loader_cls=TextLoader)
+    loader = DirectoryLoader('/data/', glob="**/*.md", loader_cls=TextLoader)
 
     docs = loader.load()
 
