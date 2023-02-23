@@ -1,8 +1,12 @@
 from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 
 from pydantic import BaseModel
 
+import zipfile
+import aiofiles
+import os
+import glob
 
 from .ingest import ingest
 from .query import query
@@ -22,9 +26,30 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.post("/upload-input")
+async def post_upload_input(content: UploadFile):
+    input_zip = "input.zip"
+    output_dir = "/data"
+
+    if os.path.exists(input_zip):
+        os.remove(input_zip)
+
+    length = 0
+    async with aiofiles.open(input_zip, "wb") as output:
+        while chunk := await content.read(1024):
+            length += len(chunk)
+            await output.write(chunk)
+
+    files = glob.glob(output_dir + "/*")
+    for f in files:
+        os.remove(f)
+
+    with zipfile.ZipFile(input_zip, "r") as zip_ref:
+        zip_ref.extractall(output_dir)
+
+    # async do the diff + ingestion + backup
+
+    return {"length": length}
 
 
 @app.post("/ingest")
