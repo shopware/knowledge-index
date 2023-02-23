@@ -41,7 +41,7 @@ async def post_upload_input(content: UploadFile):
             length += len(chunk)
             await output.write(chunk)
 
-    if os.path.exists(output_dir)
+    if os.path.exists(output_dir):
         files = glob.glob(output_dir + "/*")
         for f in files:
             file_path = os.path.join(output_dir, f)
