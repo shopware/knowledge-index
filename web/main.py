@@ -7,6 +7,7 @@ import zipfile
 import aiofiles
 import os
 import glob
+import shutil
 
 from .ingest import ingest
 from .query import query
@@ -40,13 +41,14 @@ async def post_upload_input(content: UploadFile):
             length += len(chunk)
             await output.write(chunk)
 
-    if os.path.exists(output_dir):
-        for filename in os.listdir(output_dir):
-            file_path = os.path.join(output_dir, filename)
+    if os.path.exists(output_dir)
+        files = glob.glob(output_dir + "/*")
+        for f in files:
+            file_path = os.path.join(output_dir, f)
             if os.path.isfile(file_path) or os.path.islink(file_path):
                 os.unlink(file_path) 
             elif os.path.isdir(file_path):
-                os.rmdir(file_path)
+                shutil.rmtree(file_path,)
 
     with zipfile.ZipFile(input_zip, "r") as zip_ref:
         zip_ref.extractall(output_dir)
