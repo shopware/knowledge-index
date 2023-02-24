@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI, UploadFile, Query
+from fastapi import FastAPI, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
@@ -22,9 +22,8 @@ class SearchQuery(BaseModel):
 
 
 # 1, 2 or 3 alpha-num strings, separated by --, each part max 40 char in length, lowercase
-# , regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9]{1,40})$"
 class Collection(BaseModel):
-    collection: Union[str, None] = Query(default=None, min_length=3, max_length=128)
+    collection: Union[str, None] = Query(default=None, min_length=3, max_length=128, regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9]{1,40})$")
 
 
 app = FastAPI()
@@ -38,13 +37,21 @@ app.add_middleware(
 )
 
 
+def get_collection(collection: Collection = None):
+    return collection.collection if collection is not None else None
+
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
 
 @app.post("/upload-input")
-async def post_upload_input(content: UploadFile, collection: Collection):
+async def post_upload_input(content: UploadFile, collection: Union[Collection, None, str] = None):
+    # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
+    if isinstance(collection, Union[str, None]):
+        collection = Collection(collection=collection)
+
     input_zip = "input.zip"
     output_dir = data_dir(collection.collection)
 
