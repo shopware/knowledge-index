@@ -21,9 +21,9 @@ class SearchQuery(BaseModel):
     query: str
 
 
-# 1, 2 or 3 alpha-num strings, separated by --, each part max 40 char in length, lowercase
+# 1, 2 or 3 alpha-num strings, separated by --, each part max 40 char in length, lowercase, last 3-parts section also allows _
 class Collection(BaseModel):
-    collection: Union[str, None] = Query(default=None, min_length=3, max_length=128, regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9]{1,40})$")
+    collection: Union[str, None] = Query(default=None, min_length=3, max_length=128, regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9_]{1,40})$")
 
 
 app = FastAPI()
