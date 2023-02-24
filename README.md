@@ -56,6 +56,17 @@ Upload .zip containing .md files.
 $ curl -v -F content=@test.zip https://ai-ml.fly.dev/upload-input
 ```
 
+Or with custom collection.
+
+
+```bash
+$ curl \
+ -v \
+ -F content=@test.zip \
+ -F collection=test \
+ https://ai-ml.fly.dev/upload-input
+```
+
 ## Ingestion
 
 Ingest uploaded documents.
@@ -76,7 +87,7 @@ $ curl \
 
 ## Search
 
-Search default colleciton.
+Search default collection.
 
 ```bash
 $ curl \
