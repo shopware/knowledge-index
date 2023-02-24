@@ -10,7 +10,7 @@ import os
 import glob
 import shutil
 
-from .ingest import ingest
+from .ingest import ingest, ingest_diff
 from .query import query
 from .config import data_dir
 
@@ -73,6 +73,11 @@ async def post_upload_input(content: UploadFile):
 @app.post("/ingest")
 def post_ingest():
     return {"success": ingest()}
+
+
+@app.post("/ingest-diff")
+def post_ingest():
+    return {"success": ingest_diff()}
 
 
 @app.post("/query")
