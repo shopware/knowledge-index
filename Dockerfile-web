@@ -1,7 +1,5 @@
 FROM python:3.10
 
-#RUN curl -L https://fly.io/install.sh | sh
-
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 RUN ln -s /root/.local/share/pypoetry/venv/bin/poetry /usr/local/bin/
@@ -14,16 +12,8 @@ RUN poetry config virtualenvs.create false
 
 RUN poetry install --no-root --no-cache --no-interaction
 
-# RUN poetry shell
-
-#RUN wget https://domain.com/index.faiis
-#RUN wget https://domain.com/index.pki
-
 # add --proxy-headers when running behind proxy
 CMD ["uvicorn", "web.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 # gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:80
-# uvicorn main:app --host 0.0.0.0 --port 80 --workers 4
-# uvicorn main:app --host 0.0.0.0 --port 80 --reload
-
-# run image with "docker build -t ai-ml-server ."
+# uvicorn main:app --host 0.0.0.0 --port 80 --workers 4 --reload
