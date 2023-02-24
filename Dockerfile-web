@@ -12,7 +12,7 @@ WORKDIR /code
 
 RUN poetry config virtualenvs.create false
 
-RUN poetry install
+RUN poetry install --no-root --no-cache --no-interaction
 
 # RUN poetry shell
 
