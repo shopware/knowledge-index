@@ -1,4 +1,5 @@
 import os
+from typing import Union
 
 
 def get_embedding_fn():
@@ -12,9 +13,22 @@ def get_embedding_fn():
         url = "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
         return TensorflowHubEmbeddings(model_url=url)
 
+def env_dir(env, dir, collection = Union[None, str]):
+    if collection:
+        env += "_" + collection.upper()
+        dir += "-" + collection
 
-def data_dir():
-    return os.environ.get("DATA_DIR", "/data/docs")
+    return {
+        "env": env,
+        "dir": dir
+    }
 
-def db_dir():
-    return os.environ.get("DB_DIR", "/data/db")
+def data_dir(collection = Union[None, str]):
+    conf = env_dir("DATA_DIR", "/data/docs", collection)
+
+    return os.environ.get(conf["env"], conf["dir"])
+
+def db_dir(collection = Union[None, str]):
+    conf = env_dir("DB_DIR", "/data/db", collection)
+
+    return os.environ.get(conf["env"], conf["dir"])

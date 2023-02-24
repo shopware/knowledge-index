@@ -46,7 +46,9 @@ $ uvicorn web.main:app --host 0.0.0.0 --port 80 --reload
 
 ## Devenv?
 
-# Ingestion & search
+# Endpoint examples
+
+## Upload input
 
 Upload .zip containing .md files.
 
@@ -54,19 +56,43 @@ Upload .zip containing .md files.
 $ curl -v -F content=@test.zip https://ai-ml.fly.dev/upload-input
 ```
 
+## Ingestion
+
 Ingest uploaded documents.
 
 ```bash
 $ curl -X POST https://ai-ml.fly.dev/ingest
 ```
 
-Search
+Or with custom collection.
+
+```bash
+$ curl \
+ -X POST \
+ --data '{"collection":"test"}' \
+ --header "Content-Type: application/json" \
+ https://ai-ml.fly.dev/ingest
+```
+
+## Search
+
+Search default colleciton.
 
 ```bash
 $ curl \
  -X POST \
  --header "Content-Type: application/json" \
  --data '{"query":"keywords"}' \
+ https://ai-ml.fly.dev/query
+```
+
+Search custom collection.
+
+```bash
+$ curl \
+ -X POST \
+ --header "Content-Type: application/json" \
+ --data '{"query":"keywords","collection":"test"}' \
  https://ai-ml.fly.dev/query
 ```
 

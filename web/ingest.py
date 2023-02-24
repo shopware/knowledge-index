@@ -26,8 +26,8 @@ def get_file_name(doc):
     return doc.metadata["source"]
 
 
-def ingest():
-    current_dir = data_dir()
+def ingest(collection):
+    current_dir = data_dir(collection)
     ingested_dir = current_dir + "_ingested"
 
     loader = DirectoryLoader(current_dir, glob="**/*.md", loader_cls=TextLoader)
@@ -54,7 +54,7 @@ def ingest():
 
     db = FAISS.from_documents(docs_splitted, get_embedding_fn())
 
-    FAISS.save_local(db, db_dir())
+    FAISS.save_local(db, db_dir(collection))
 
     # mark as ingested
     if os.path.isdir(ingested_dir):
@@ -64,8 +64,8 @@ def ingest():
     return True
 
 
-def ingest_diff():
-    current_dir = data_dir()
+def ingest_diff(collection):
+    current_dir = data_dir(collection)
     ingested_dir = current_dir + "_ingested"
 
     if not os.path.isdir(current_dir):

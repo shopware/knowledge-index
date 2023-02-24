@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
@@ -17,8 +17,14 @@ from .config import data_dir
 import logging
 
 
-class Query(BaseModel):
+class SearchQuery(BaseModel):
     query: str
+
+
+# 1, 2 or 3 alpha-num strings, separated by --, each part max 40 char in length, lowercase
+# , regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9]{1,40})$"
+class Collection(BaseModel):
+    collection: Union[str, None] = Query(default=None, min_length=3, max_length=128)
 
 
 app = FastAPI()
@@ -38,9 +44,9 @@ def read_root():
 
 
 @app.post("/upload-input")
-async def post_upload_input(content: UploadFile):
+async def post_upload_input(content: UploadFile, collection: Collection):
     input_zip = "input.zip"
-    output_dir = data_dir()
+    output_dir = data_dir(collection.collection)
 
     if os.path.exists(input_zip):
         os.remove(input_zip)
@@ -71,18 +77,18 @@ async def post_upload_input(content: UploadFile):
 
 
 @app.post("/ingest")
-def post_ingest():
-    return {"success": ingest()}
+def post_ingest(collection: Collection):
+    return {"success": ingest(collection.collection)}
 
 
 @app.post("/ingest-diff")
-def post_ingest():
-    return {"success": ingest_diff()}
+def post_ingest(collection: Collection):
+    return {"success": ingest_diff(collection.collection)}
 
 
 @app.post("/query")
-def post_query(search: Query):
-    results = query(search.query)
+def post_query(search: SearchQuery, collection: Collection):
+    results = query(search.query, collection.collection)
     mappedResults = []
 
     for result in results:
