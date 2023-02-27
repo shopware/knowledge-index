@@ -43,7 +43,6 @@ def add_metadata_to_docs(docs, current_dir):
         heading = get_topmost_heading(doc).lstrip("# ")
         if heading is None:
             heading = get_file_name(doc).split("/")[-1].rstrip(".md").replace("-", " ")
-        print(heading)
         doc.metadata["heading"] = heading
         doc.metadata["id"] = os.path.relpath(get_file_name(doc), current_dir)
 
@@ -65,7 +64,7 @@ def ingest(collection):
     # split docs into chunks
     docs_splitted = split_docs(docs)
 
-    # use LangChain VectoreStore from_documents method
+    # use LangChain VectorStore from_documents method
     db = FaissMap.from_documents(docs_splitted, get_embedding_fn())
 
     # create a new index
@@ -127,11 +126,11 @@ def ingest_diff(collection):
     db = FaissMap.from_documents(docs_splitted, get_embedding_fn())
 
     # merge indexes
-    print(db)
+    original_store = FaissMap.load_local(db_dir(collection), get_embedding_fn())
+    merged_store = FaissMap.merge([original_store, db])
+    FaissMap.save_local(merged_store, db_dir(collection))
 
-    # 2 - remove deleted files
-
-    return False  # TBD
+    return True
 
 
 def get_diff_files(dcmp, diff):

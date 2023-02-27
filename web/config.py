@@ -32,3 +32,8 @@ def db_dir(collection = Union[None, str]):
     conf = env_dir("DB_DIR", "/data/db", collection)
 
     return os.environ.get(conf["env"], conf["dir"])
+
+def cache_dir():
+    conf = env_dir("CACHE_DIR", "/data/cache", None)
+
+    return os.environ.get(conf["env"], conf["dir"])
