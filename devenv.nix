@@ -1,5 +1,12 @@
 {pkgs, ...}: {
-  packages = [pkgs.zlib pkgs.stdenv.cc.cc.lib pkgs.python310Packages.faiss];
+  packages = [
+    pkgs.zlib
+    pkgs.stdenv.cc.cc.lib
+    pkgs.python310Packages.faiss
+    pkgs.python310Packages.nltk
+    pkgs.python310Packages.lxml
+    pkgs.nodePackages_latest.pyright
+  ];
   languages.python = {
     enable = true;
     poetry.enable = true;
