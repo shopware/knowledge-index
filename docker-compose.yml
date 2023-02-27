@@ -27,3 +27,4 @@ services:
       - ./:/code
       - ./data:/data/docs
       - ./db:/data/db
+      - ./cache:/data/cache

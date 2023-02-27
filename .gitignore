@@ -4,8 +4,9 @@
 # Devenv
 .devenv*
 devenv.local.nix
+.idea
 
 # Inputs
 data/*
 db/*
-input.zip
+cache/*
