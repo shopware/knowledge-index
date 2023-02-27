@@ -84,6 +84,7 @@ class FaissMap(VectorStore):
         metadatas: Optional[List[dict]] = None,
         **kwargs: Any,
     ) -> Any:
+        #embeddings = embedding.embed_documents(texts)
         reordered = get_cached_embeddings(embedding, texts, metadatas)
         texts = reordered["texts"]
         metadatas = reordered["metadatas"]
@@ -135,7 +136,12 @@ def get_cached_embeddings(
         metadatas: Optional[List[dict]] = None
 ):
     my_cache_dir = cache_dir()
-    cached = non_cached = {
+    cached = {
+        "texts": [],
+        "metadatas": [],
+        "embeddings": []
+    }
+    non_cached = {
         "texts": [],
         "metadatas": [],
         "embeddings": []
