@@ -88,11 +88,12 @@ class FaissMap(VectorStore):
         for i, text in enumerate(texts):
             metadata = metadatas[i] if metadatas else {}
             metadata["index_id"] = i
+            assert "id" in metadata
             documents.append(Document(page_content=text, metadata=metadata))
 
-        docstore = {doc.metadata["source"]: doc for doc in documents}
+        docstore = {doc.metadata["id"]: doc for doc in documents}
 
-        index_to_id = {i: doc.metadata["source"] for i, doc in enumerate(documents)}
+        index_to_id = {i: doc.metadata["id"] for i, doc in enumerate(documents)}
         return cls(embedding.embed_query, index, docstore, index_to_id)
 
     def save_local(self, folder_path: str) -> None:

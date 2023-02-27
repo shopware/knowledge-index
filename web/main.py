@@ -9,9 +9,9 @@ import glob
 import shutil
 
 from .ingest import ingest, ingest_diff
-from .query import query
+from .query import query, query_by_id
 from .config import data_dir
-from .params import SearchParam, CollectionParam, PostQueryParams
+from .params import SearchParam, CollectionParam, PostQueryParams, PostNeighboursParams
 
 import logging
 
@@ -49,7 +49,9 @@ def read_root():
 
 
 @app.post("/upload-input")
-async def post_upload_input(content: UploadFile, collection: Union[CollectionParam, None, str] = CollectionParam()):
+async def post_upload_input(
+    content: UploadFile, collection: Union[CollectionParam, None, str] = CollectionParam()
+):
     # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
     if isinstance(collection, Union[str, None]):
         collection = CollectionParam(collection=collection)
@@ -101,6 +103,26 @@ def post_ingest(collection: CollectionParam = CollectionParam()):
 @app.post("/query")
 def post_query(data: PostQueryParams):
     results = query(data.search, data.collection)
+    mappedResults = []
+
+    for result in results:
+        source = result[0].metadata["source"]
+        heading = result[0].metadata["heading"]
+        excerpt = result[0].page_content
+        score = result[1]
+        mappedResults.append(
+            {"source": source, "score": str(score), "heading": heading}
+        )
+
+    return {"results": mappedResults}
+
+
+@app.post("/neighbours")
+def post_query(data: PostNeighboursParams):
+    results = query_by_id(data.id, data.collection)
+    results = [
+        result for result in results if result[0].metadata["source"] != data.id
+    ]
     mappedResults = []
 
     for result in results:
