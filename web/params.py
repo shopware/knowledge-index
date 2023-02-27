@@ -2,6 +2,8 @@ from typing import Union
 from fastapi import Body, UploadFile
 from pydantic import BaseModel
 
+class IdQuery(BaseModel):
+    id: str
 
 class SearchParam(BaseModel):
     search: str = Body(min_length=3, max_length=128)
@@ -13,4 +15,7 @@ class CollectionParam(BaseModel):
 
 
 class PostQueryParams(CollectionParam, SearchParam):
+    pass
+
+class PostNeighboursParams(CollectionParam, IdQuery):
     pass
