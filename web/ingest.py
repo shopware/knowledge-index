@@ -12,6 +12,7 @@ import hashlib
 
 from .config import get_embedding_fn
 from .config import data_dir, db_dir
+from .vector_store import FaissMap
 
 
 def get_topmost_heading(doc):
@@ -40,9 +41,10 @@ def ingest(collection):
     for doc in docs:
         heading = get_topmost_heading(doc).lstrip("# ")
         if heading is None:
-            heading = get_file_name().split("/")[-1].rstrip(".md").replace("-", " ")
+            heading = get_file_name(doc).split("/")[-1].rstrip(".md").replace("-", " ")
         print(heading)
         doc.metadata["heading"] = heading
+        doc.metadata["id"] = os.path.relpath(get_file_name(doc), current_dir)
 
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=3000, chunk_overlap=0
@@ -52,9 +54,9 @@ def ingest(collection):
     print(f"Loaded {len(docs)} documents.")
     print(f"Splitted into {len(docs_splitted)} chunks.")
 
-    db = FAISS.from_documents(docs_splitted, get_embedding_fn())
+    db = FaissMap.from_documents(docs_splitted, get_embedding_fn())
 
-    FAISS.save_local(db, db_dir(collection))
+    FaissMap.save_local(db, db_dir(collection))
 
     # mark as ingested
     if os.path.isdir(ingested_dir):
@@ -86,36 +88,44 @@ def ingest_diff(collection):
     json_formatted_str = json.dumps(diff, indent=2)
     print(json_formatted_str)
 
-    return False # TBD
+    return False  # TBD
 
 
 def get_diff_files(dcmp, diff):
     # collect updated files
     for name in dcmp.diff_files:
         fullname = os.path.join(dcmp.left, name)
-        diff['updated'].append({
-            'name': fullname,
-            'old': hashlib.md5(open(fullname, 'rb').read()).hexdigest(),
-            'new': hashlib.md5(open(os.path.join(dcmp.right, name), 'rb').read()).hexdigest()
-        })
+        diff["updated"].append(
+            {
+                "name": fullname,
+                "old": hashlib.md5(open(fullname, "rb").read()).hexdigest(),
+                "new": hashlib.md5(
+                    open(os.path.join(dcmp.right, name), "rb").read()
+                ).hexdigest(),
+            }
+        )
 
     # collect deleted files
     for name in dcmp.left_only:
         fullname = os.path.join(dcmp.left, name)
-        diff['deleted'].append({
-            'name': fullname,
-            'old': hashlib.md5(open(fullname, 'rb').read()).hexdigest(),
-            'new': None
-        })
+        diff["deleted"].append(
+            {
+                "name": fullname,
+                "old": hashlib.md5(open(fullname, "rb").read()).hexdigest(),
+                "new": None,
+            }
+        )
 
     # collect added files
     for name in dcmp.right_only:
         fullname = os.path.join(dcmp.right, name)  # read from new dir
-        diff['added'].append({
-            'name': fullname,
-            'old': None,
-            'new': hashlib.md5(open(fullname, 'rb').read()).hexdigest()
-        })
+        diff["added"].append(
+            {
+                "name": fullname,
+                "old": None,
+                "new": hashlib.md5(open(fullname, "rb").read()).hexdigest(),
+            }
+        )
 
     # get diff from sub dirs
     for sub_dcmp in dcmp.subdirs.values():

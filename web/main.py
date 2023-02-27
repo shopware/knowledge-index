@@ -11,7 +11,7 @@ import glob
 import shutil
 
 from .ingest import ingest, ingest_diff
-from .query import query
+from .query import query, query_by_id
 from .config import data_dir
 
 import logging
@@ -21,9 +21,18 @@ class SearchQuery(BaseModel):
     query: str
 
 
+class IdQuery(BaseModel):
+    id: str
+
+
 # 1, 2 or 3 alpha-num strings, separated by --, each part max 40 char in length, lowercase, last 3-parts section also allows _
 class Collection(BaseModel):
-    collection: Union[str, None] = Body(default=None, min_length=3, max_length=128, regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9_]{1,40})$")
+    collection: Union[str, None] = Body(
+        default=None,
+        min_length=3,
+        max_length=128,
+        regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9_]{1,40})$",
+    )
 
 
 app = FastAPI()
@@ -47,7 +56,9 @@ def read_root():
 
 
 @app.post("/upload-input")
-async def post_upload_input(content: UploadFile, collection: Union[Collection, None, str] = Collection()):
+async def post_upload_input(
+    content: UploadFile, collection: Union[Collection, None, str] = Collection()
+):
     # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
     if isinstance(collection, Union[str, None]):
         collection = Collection(collection=collection)
@@ -96,6 +107,26 @@ def post_ingest(collection: Collection = Collection()):
 @app.post("/query")
 def post_query(search: SearchQuery, collection: Collection = Collection()):
     results = query(search.query, collection.collection)
+    mappedResults = []
+
+    for result in results:
+        source = result[0].metadata["source"]
+        heading = result[0].metadata["heading"]
+        excerpt = result[0].page_content
+        score = result[1]
+        mappedResults.append(
+            {"source": source, "score": str(score), "heading": heading}
+        )
+
+    return {"results": mappedResults}
+
+
+@app.post("/neighbours")
+def post_query(search: IdQuery, collection: Collection = Collection()):
+    results = query_by_id(search.id, collection.collection)
+    results = [
+        result for result in results if result[0].metadata["source"] != search.id
+    ]
     mappedResults = []
 
     for result in results:
