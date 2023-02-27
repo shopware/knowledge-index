@@ -2,8 +2,6 @@ from typing import Union
 from fastapi import FastAPI, UploadFile, Query, Form, Body
 from fastapi.middleware.cors import CORSMiddleware
 
-from pydantic import BaseModel
-
 import zipfile
 import aiofiles
 import os
@@ -13,20 +11,28 @@ import shutil
 from .ingest import ingest, ingest_diff
 from .query import query
 from .config import data_dir
+from .params import SearchParam, CollectionParam, PostQueryParams
 
 import logging
 
+description = """
+Shopware document ingestion and querying API allows you to:
+ - upload .md documents,
+ - organize them in collections,
+ - store their vector embeddings from OpenAI API or Tensorflow,
+ - and run similarity search afterwards.
+"""
 
-class SearchQuery(BaseModel):
-    query: str
-
-
-# 1, 2 or 3 alpha-num strings, separated by --, each part max 40 char in length, lowercase, last 3-parts section also allows _
-class Collection(BaseModel):
-    collection: Union[str, None] = Body(default=None, min_length=3, max_length=128, regex="^([a-z0-9]{3,40}|--[a-z0-9]{3,40}|[a-z0-9]{1,40}--[a-z0-9]{1,40}|[a-z0-9]{3,40}--[a-z0-9]{1,40}--[a-z0-9_]{1,40})$")
-
-
-app = FastAPI()
+app = FastAPI(
+    title="Shopware document ingestion and querying API",
+    description=description,
+    version="0.0.1",
+    contact={
+        "name": "Shopware",
+        "url": "https://shopware.com/contact/",
+        "email": "developer@shopware.com",
+    }
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,20 +43,16 @@ app.add_middleware(
 )
 
 
-def get_collection(collection: Collection = None):
-    return collection.collection if collection is not None else None
-
-
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
 
 @app.post("/upload-input")
-async def post_upload_input(content: UploadFile, collection: Union[Collection, None, str] = Collection()):
+async def post_upload_input(content: UploadFile, collection: Union[CollectionParam, None, str] = CollectionParam()):
     # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
     if isinstance(collection, Union[str, None]):
-        collection = Collection(collection=collection)
+        collection = CollectionParam(collection=collection)
 
     input_zip = "input.zip"
     output_dir = data_dir(collection.collection)
@@ -80,22 +82,25 @@ async def post_upload_input(content: UploadFile, collection: Union[Collection, N
 
     # async do the diff + ingestion + backup
 
-    return {"length": length}
+    return {
+        "length": length,
+        "collection": collection.collection
+    }
 
 
 @app.post("/ingest")
-def post_ingest(collection: Collection = Collection()):
+def post_ingest(collection: CollectionParam = CollectionParam()):
     return {"success": ingest(collection.collection)}
 
 
 @app.post("/ingest-diff")
-def post_ingest(collection: Collection = Collection()):
+def post_ingest(collection: CollectionParam = CollectionParam()):
     return {"success": ingest_diff(collection.collection)}
 
 
 @app.post("/query")
-def post_query(search: SearchQuery, collection: Collection = Collection()):
-    results = query(search.query, collection.collection)
+def post_query(data: PostQueryParams):
+    results = query(data.search, data.collection)
     mappedResults = []
 
     for result in results:
