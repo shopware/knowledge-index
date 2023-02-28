@@ -4,6 +4,7 @@
 
 **Environment variables**
 
+- `KNOWLEDGE_API_KEY` (required)
 - `OPENAI_API_KEY` (optional)
 - `WEB_IMAGE` (optional), default: `ai-ml-web:latest` - you can skip building your local image and use pre-built
   no-code image `bojanrajh/python:latest`
@@ -11,6 +12,7 @@
 **Examples**
 
 ```bash
+$ export KNOWLEDGE_API_KEY="s0m3-r4nd0m-4p1-k3y-h34d3r-f0r-b4s1c-s3c00r1ty"
 $ export OPENAI_API_KEY="sk-..."
 $ export WEB_IMAGE="bojanrajh/python:latest"
 ```
@@ -108,7 +110,11 @@ $ uvicorn web.main:app --host 0.0.0.0 --port 80 --reload
 Upload .zip containing .md files.
 
 ```bash
-$ curl -v -F content=@test.zip https://ai-ml.fly.dev/upload-input
+$ curl \
+ -v \
+ -F content=@test.zip \
+ -H "X-Shopware-Api-Key: your-api-key" \
+ https://ai-ml.fly.dev/upload-input
 ```
 
 Or with custom collection.
@@ -118,6 +124,7 @@ $ curl \
  -v \
  -F content=@test.zip \
  -F collection=test \
+ -H "X-Shopware-Api-Key: your-api-key" \
  https://ai-ml.fly.dev/upload-input
 ```
 
@@ -126,7 +133,10 @@ $ curl \
 Ingest uploaded documents.
 
 ```bash
-$ curl -X POST https://ai-ml.fly.dev/ingest
+$ curl \
+ -X POST \
+ -H "X-Shopware-Api-Key: your-api-key" \
+ https://ai-ml.fly.dev/ingest
 ```
 
 Or with custom collection.
@@ -135,7 +145,8 @@ Or with custom collection.
 $ curl \
  -X POST \
  --data '{"collection":"test"}' \
- --header "Content-Type: application/json" \
+ -H "Content-Type: application/json" \
+ -H "X-Shopware-Api-Key: your-api-key" \
  https://ai-ml.fly.dev/ingest
 ```
 
@@ -146,8 +157,8 @@ Search default collection.
 ```bash
 $ curl \
  -X POST \
- --header "Content-Type: application/json" \
  --data '{"search":"keywords"}' \
+ -H "Content-Type: application/json" \
  https://ai-ml.fly.dev/query
 ```
 
@@ -156,8 +167,8 @@ Search custom collection.
 ```bash
 $ curl \
  -X POST \
- --header "Content-Type: application/json" \
  --data '{"search":"keywords","collection":"test"}' \
+ -H "Content-Type: application/json" \
  https://ai-ml.fly.dev/query
 ```
 
@@ -168,7 +179,6 @@ Search default collection.
 ```bash
 $ curl \
  -X POST \
- --header "Content-Type: application/json" \
  --data '{"id":"document/identifier/foo"}' \
  https://ai-ml.fly.dev/neighbours
 ```
@@ -178,7 +188,7 @@ Search custom collection.
 ```bash
 $ curl \
  -X POST \
- --header "Content-Type: application/json" \
+ -H "Content-Type: application/json" \
  --data '{"query":"document/identifier/foo","collection":"test"}' \
  https://ai-ml.fly.dev/neighbours
 ```
@@ -195,4 +205,5 @@ Fly.io deployment:
 - `fly auth docker --access-token ...`
 - `fly deploy -i ai-ml-server:latest` - push local image to fly.io, then deploy
 - `fly secrets set OPENAI_API_KEY="..."` - or fallback to tensorflow
+- `fly secrets set KNOWLEDGE_API_KEY="..."` - required
 - `fly volumes create data --region ams --size 1` + see [./fly-toml](./fly-toml)
