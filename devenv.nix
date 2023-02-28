@@ -17,4 +17,6 @@
   processes = {
     web-server.exec = "uvicorn web.main:app --port 8080 --reload";
   };
+
+  env.ROOT_DIR = "var";
 }

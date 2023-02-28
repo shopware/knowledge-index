@@ -2,8 +2,10 @@ from typing import Union
 from fastapi import Body, UploadFile
 from pydantic import BaseModel
 
+
 class IdQuery(BaseModel):
     id: str
+
 
 class SearchParam(BaseModel):
     search: str = Body(
@@ -13,6 +15,10 @@ class SearchParam(BaseModel):
             "search": "my search keywords"
         }
     )
+
+
+class URLParam(BaseModel):
+    url: str
 
 
 class CollectionParam(BaseModel):
@@ -67,6 +73,7 @@ class PostQueryParams(CollectionParam, SearchParam):
             }
         }
 
+
 class PostNeighboursParams(CollectionParam, IdQuery):
     class Config:
         schema_extra = {
@@ -89,3 +96,7 @@ class PostNeighboursParams(CollectionParam, IdQuery):
                 }
             }
         }
+
+
+class PostURLIngestParams(CollectionParam, URLParam):
+    pass

@@ -9,10 +9,10 @@ import glob
 import shutil
 
 from .upload import upload
-from .ingest import ingest, ingest_diff
 from .query import query, query_by_id, map_results
+from .ingest import ingest, ingest_diff, ingest_url
 from .config import data_dir
-from .params import SearchParam, CollectionParam, PostQueryParams, PostNeighboursParams
+from .params import SearchParam, CollectionParam, PostQueryParams, PostNeighboursParams, PostURLIngestParams
 from .results import Results, Result, Success, Hello, Status
 
 import logging
@@ -65,7 +65,10 @@ app = FastAPI(
         "url": "https://shopware.com/contact/",
         "email": "developer@shopware.com",
     },
+<<<<<<< HEAD
     openapi_tags=tags_metadata
+=======
+>>>>>>> 0558289 (Add ingestion endpoint for urls)
 )
 
 app.add_middleware(
@@ -84,13 +87,46 @@ def read_root() -> Hello:
 
 @app.post("/upload-input", tags=["upload"])
 async def post_upload_input(
+<<<<<<< HEAD
         content: UploadFile, collection: Union[CollectionParam, None, str] = CollectionParam()
+=======
+    content: UploadFile,
+    collection: Union[CollectionParam, None, str] = CollectionParam(),
+>>>>>>> 0558289 (Add ingestion endpoint for urls)
 ):
     # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
     if isinstance(collection, Union[str, None]):
         collection = CollectionParam(collection=collection)
 
-    return await upload(content, collection.collection)
+    input_zip = "input.zip"
+    output_dir = data_dir(collection.collection)
+
+    if os.path.exists(input_zip):
+        os.remove(input_zip)
+
+    length = 0
+    async with aiofiles.open(input_zip, "wb") as output:
+        while chunk := await content.read(1024):
+            length += len(chunk)
+            await output.write(chunk)
+
+    if os.path.exists(output_dir):
+        files = glob.glob(output_dir + "/*")
+        for f in files:
+            file_path = os.path.join(output_dir, f)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(
+                    file_path,
+                )
+
+    with zipfile.ZipFile(input_zip, "r") as zip_ref:
+        zip_ref.extractall(output_dir)
+
+    # async do the diff + ingestion + backup
+
+    return {"length": length, "collection": collection.collection}
 
 
 @app.post("/ingest", tags=["ingest"])
@@ -118,6 +154,11 @@ def post_query(data: PostNeighboursParams) -> Results:
     ]
 
     return {"results": map_results(results)}
+
+
+@app.post("/ingest-url")
+def ingest_urls(data: PostURLIngestParams):
+    return {"success": ingest_url(data.url, data.collection)}
 
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio

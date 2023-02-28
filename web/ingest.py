@@ -1,4 +1,4 @@
-from langchain.document_loaders import DirectoryLoader
+from langchain.document_loaders import DirectoryLoader, UnstructuredURLLoader
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
@@ -14,6 +14,7 @@ import hashlib
 from .config import get_embedding_fn
 from .config import data_dir, db_dir
 from .vector_store import FaissMap
+from .scraper import get_link_tree, filter_working_urls
 
 
 def get_topmost_heading(doc):
@@ -27,6 +28,7 @@ def get_topmost_heading(doc):
 def get_file_name(doc):
     return doc.metadata["source"]
 
+
 def split_docs(docs):
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=3000, chunk_overlap=0
@@ -38,6 +40,7 @@ def split_docs(docs):
 
     return docs_splitted
 
+
 def add_metadata_to_docs(docs, current_dir):
     for doc in docs:
         heading = get_topmost_heading(doc).lstrip("# ")
@@ -45,6 +48,33 @@ def add_metadata_to_docs(docs, current_dir):
             heading = get_file_name(doc).split("/")[-1].rstrip(".md").replace("-", " ")
         doc.metadata["heading"] = heading
         doc.metadata["id"] = os.path.relpath(get_file_name(doc), current_dir)
+
+
+def ingest_url(url, collection):
+    loader = UnstructuredURLLoader(filter_working_urls(get_link_tree(url)))
+    docs = loader.load()
+
+    for doc in docs:
+        for line in doc.page_content.splitlines():
+            line = line.strip()
+            if len(line) > 0:
+                doc.metadata["heading"] = line
+                break
+        doc.metadata["id"] = doc.metadata["source"]
+
+    # add heading and id metadata
+    # add_metadata_to_docs(docs, current_dir)
+
+    # split docs into chunks
+    docs_splitted = split_docs(docs)
+
+    # use LangChain VectorStore from_documents method
+    db = FaissMap.from_documents(docs_splitted, get_embedding_fn())
+
+    # create a new index
+    FaissMap.save_local(db, db_dir(collection))
+
+    return True
 
 
 def ingest(collection):
@@ -79,15 +109,12 @@ def ingest(collection):
 
 
 def get_doc_from_file(file):
-    metadata = {
-        "source": file["name"],
-        "heading": "custom heading",
-        "id": file["name"]
-    }
+    metadata = {"source": file["name"], "heading": "custom heading", "id": file["name"]}
     f = open(file["name"], "r")
     content = f.read()
     f.close()
     return Document(page_content=content, metadata=metadata)
+
 
 def ingest_diff(collection):
     current_dir = data_dir(collection)

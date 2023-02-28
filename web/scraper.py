@@ -8,7 +8,6 @@ def get_links(url: str) -> List[str]:
     doc = requests.get(url)
 
     if not doc.ok:
-        print(f"what??: {url}")
         return []
 
     soup = BeautifulSoup(doc.text, "html.parser")
