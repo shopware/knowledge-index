@@ -9,10 +9,16 @@ import glob
 import shutil
 
 from .upload import upload
-from .ingest import ingest, ingest_diff
 from .query import query, query_by_id, map_results
+from .ingest import ingest, ingest_diff, ingest_url
 from .config import data_dir
-from .params import SearchParam, CollectionParam, PostQueryParams, PostNeighboursParams
+from .params import (
+    SearchParam,
+    CollectionParam,
+    PostQueryParams,
+    PostNeighboursParams,
+    PostURLIngestParams,
+)
 from .results import Results, Result, Success, Hello, Status
 
 import logging
@@ -26,34 +32,13 @@ Shopware document ingestion and querying API allows you to:
 """
 
 tags_metadata = [
-    {
-        "name": "root",
-        "description": "Hello World demo endpoint"
-    },
-    {
-        "name": "upload",
-        "description": ""
-    },
-    {
-        "name": "ingest",
-        "description": ""
-    },
-    {
-        "name": "ingest-diff",
-        "description": ""
-    },
-    {
-        "name": "query",
-        "description": ""
-    },
-    {
-        "name": "neighbours",
-        "description": ""
-    },
-    {
-        "name": "healthcheck",
-        "description": ""
-    }
+    {"name": "root", "description": "Hello World demo endpoint"},
+    {"name": "upload", "description": ""},
+    {"name": "ingest", "description": ""},
+    {"name": "ingest-diff", "description": ""},
+    {"name": "query", "description": ""},
+    {"name": "neighbours", "description": ""},
+    {"name": "healthcheck", "description": ""},
 ]
 
 app = FastAPI(
@@ -65,7 +50,7 @@ app = FastAPI(
         "url": "https://shopware.com/contact/",
         "email": "developer@shopware.com",
     },
-    openapi_tags=tags_metadata
+    openapi_tags=tags_metadata,
 )
 
 app.add_middleware(
@@ -84,7 +69,8 @@ def read_root() -> Hello:
 
 @app.post("/upload-input", tags=["upload"])
 async def post_upload_input(
-        content: UploadFile, collection: Union[CollectionParam, None, str] = CollectionParam()
+    content: UploadFile,
+    collection: Union[CollectionParam, None, str] = CollectionParam(),
 ):
     # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
     if isinstance(collection, Union[str, None]):
@@ -113,11 +99,14 @@ def post_query(data: PostQueryParams) -> Results:
 @app.post("/neighbours", tags=["neighbours"])
 def post_query(data: PostNeighboursParams) -> Results:
     results = query_by_id(data.id, data.collection)
-    results = [
-        result for result in results if result[0].metadata["source"] != data.id
-    ]
+    results = [result for result in results if result[0].metadata["source"] != data.id]
 
     return {"results": map_results(results)}
+
+
+@app.post("/ingest-url")
+def ingest_urls(data: PostURLIngestParams) -> Success:
+    return {"success": ingest_url(data.url, data.collection)}
 
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio
