@@ -15,4 +15,4 @@ class Status(BaseModel):
     status: Literal["ok"]
 
 class Hello(BaseModel):
-    Hello: Literal["world"]
+    Hello: Literal["World"]
