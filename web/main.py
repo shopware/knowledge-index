@@ -13,6 +13,7 @@ from .ingest import ingest, ingest_diff
 from .query import query, query_by_id, map_results
 from .config import data_dir
 from .params import SearchParam, CollectionParam, PostQueryParams, PostNeighboursParams
+from .results import Results, Result, Success, Hello, Status
 
 import logging
 
@@ -24,6 +25,37 @@ Shopware document ingestion and querying API allows you to:
  - and run similarity search afterwards.
 """
 
+tags_metadata = [
+    {
+        "name": "root",
+        "description": "Hello World demo endpoint"
+    },
+    {
+        "name": "upload",
+        "description": ""
+    },
+    {
+        "name": "ingest",
+        "description": ""
+    },
+    {
+        "name": "ingest-diff",
+        "description": ""
+    },
+    {
+        "name": "query",
+        "description": ""
+    },
+    {
+        "name": "neighbours",
+        "description": ""
+    },
+    {
+        "name": "healthcheck",
+        "description": ""
+    }
+]
+
 app = FastAPI(
     title="Shopware document ingestion and querying API",
     description=description,
@@ -32,7 +64,8 @@ app = FastAPI(
         "name": "Shopware",
         "url": "https://shopware.com/contact/",
         "email": "developer@shopware.com",
-    }
+    },
+    openapi_tags=tags_metadata
 )
 
 app.add_middleware(
@@ -44,14 +77,14 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def read_root():
+@app.get("/", tags=["root"])
+def read_root() -> Hello:
     return {"Hello": "World"}
 
 
-@app.post("/upload-input")
+@app.post("/upload-input", tags=["upload"])
 async def post_upload_input(
-    content: UploadFile, collection: Union[CollectionParam, None, str] = CollectionParam()
+        content: UploadFile, collection: Union[CollectionParam, None, str] = CollectionParam()
 ):
     # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
     if isinstance(collection, Union[str, None]):
@@ -60,25 +93,25 @@ async def post_upload_input(
     return await upload(content, collection.collection)
 
 
-@app.post("/ingest")
-def post_ingest(collection: CollectionParam = CollectionParam()):
+@app.post("/ingest", tags=["ingest"])
+def post_ingest(collection: CollectionParam = CollectionParam()) -> Success:
     return {"success": ingest(collection.collection)}
 
 
-@app.post("/ingest-diff")
-def post_ingest(collection: CollectionParam = CollectionParam()):
+@app.post("/ingest-diff", tags=["ingest-diff"])
+def post_ingest(collection: CollectionParam = CollectionParam()) -> Success:
     return {"success": ingest_diff(collection.collection)}
 
 
-@app.post("/query")
-def post_query(data: PostQueryParams):
+@app.post("/query", tags=["query"])
+def post_query(data: PostQueryParams) -> Results:
     results = query(data.search, data.collection)
 
     return {"results": map_results(results)}
 
 
-@app.post("/neighbours")
-def post_query(data: PostNeighboursParams):
+@app.post("/neighbours", tags=["neighbours"])
+def post_query(data: PostNeighboursParams) -> Results:
     results = query_by_id(data.id, data.collection)
     results = [
         result for result in results if result[0].metadata["source"] != data.id
@@ -91,6 +124,6 @@ def post_query(data: PostNeighboursParams):
 # https://fly.io/docs/languages-and-frameworks/python/
 # https://fly.io/docs/languages-and-frameworks/dockerfile/
 # https://fly.io/docs/reference/secrets/#setting-secrets
-@app.get("/healthcheck")
-def healtcheck():
+@app.get("/healthcheck", tags=["healthcheck"])
+def healthcheck() -> Status:
     return {"status": "ok"}
