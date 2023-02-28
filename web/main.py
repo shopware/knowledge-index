@@ -11,6 +11,8 @@ import shutil
 from .upload import upload
 from .query import query, query_by_id, map_results
 from .ingest import ingest, ingest_diff, ingest_url
+from .cache import prune_cache
+from .storage import get_storage_info
 from .config import data_dir
 from .security import require_api_key
 from .params import (
@@ -55,6 +57,10 @@ tags_metadata = [
 If a document is already indexed, it will be skipped, if no document is indexed a new index will be created."""
     },
     {
+        "name": "ingest-url",
+        "description": ""
+    },
+    {
         "name": "query",
         "description": "Query a collection based on a search query. This will return the 5 closest documents based on the vector embeddings."
     },
@@ -62,6 +68,14 @@ If a document is already indexed, it will be skipped, if no document is indexed 
         "name": "neighbours",
         "description": """Obtain the closest neighbours for a given document id. This will return the 5 closest documents based on the vector embeddings.
 An id is the relative file name of the .md file - for example: `src/docs/products/extensions/migration-assistant/concept/dataselection-and-dataset.md`"""
+    },
+    {
+        "name": "cache",
+        "description": "Delete old cache from the filesystem"
+    },
+    {
+        "name": "storage",
+        "description": "Get storage usage"
     },
     {
         "name": "healthcheck",
@@ -142,12 +156,22 @@ def post_query(data: PostNeighboursParams) -> Results:
     return {"results": map_results(results)}
 
 
-@app.post("/ingest-url")
+@app.post("/ingest-url", tags=["inject-url"])
 def ingest_urls(
         data: PostURLIngestParams,
         token: str = Depends(require_api_key),
 ) -> Success:
     return {"success": ingest_url(data.url, data.collection)}
+
+
+@app.delete("/cache", tags=["cache"])
+def delete_cache(token: str = Depends(require_api_key)) -> Success:
+    return {"success": prune_cache()}
+
+
+@app.get("/storage", tags=["storage"])
+def get_storage(token: str = Depends(require_api_key)):
+    return get_storage_info()
 
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio
