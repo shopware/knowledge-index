@@ -83,7 +83,7 @@ def post_query(data: PostNeighboursParams):
     results = [
         result for result in results if result[0].metadata["source"] != data.id
     ]
-    
+
     return {"results": map_results(results)}
 
 

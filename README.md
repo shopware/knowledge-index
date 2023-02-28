@@ -147,7 +147,7 @@ Search default collection.
 $ curl \
  -X POST \
  --header "Content-Type: application/json" \
- --data '{"query":"keywords"}' \
+ --data '{"search":"keywords"}' \
  https://ai-ml.fly.dev/query
 ```
 
@@ -157,8 +157,30 @@ Search custom collection.
 $ curl \
  -X POST \
  --header "Content-Type: application/json" \
- --data '{"query":"keywords","collection":"test"}' \
+ --data '{"search":"keywords","collection":"test"}' \
  https://ai-ml.fly.dev/query
+```
+
+## Neighbours
+
+Search default collection.
+
+```bash
+$ curl \
+ -X POST \
+ --header "Content-Type: application/json" \
+ --data '{"id":"document/identifier/foo"}' \
+ https://ai-ml.fly.dev/neighbours
+```
+
+Search custom collection.
+
+```bash
+$ curl \
+ -X POST \
+ --header "Content-Type: application/json" \
+ --data '{"query":"document/identifier/foo","collection":"test"}' \
+ https://ai-ml.fly.dev/neighbours
 ```
 
 # Notes
