@@ -13,6 +13,7 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-root --no-cache --no-interaction
 
 RUN python -c "import nltk; nltk.download('punkt')"
+
 RUN python -c "import nltk; nltk.download('averaged_perceptron')"
 
 # add --proxy-headers when running behind proxy
