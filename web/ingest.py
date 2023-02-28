@@ -21,9 +21,15 @@ def get_topmost_heading(doc):
     for line in doc.page_content.splitlines():
         line = line.strip()
         if line.startswith("#"):
-            return line
+            return line.lstrip("# ")
     return None
 
+
+def get_doc_heading(doc):
+    heading = get_topmost_heading(doc)
+    if heading is None:
+        heading = get_file_name(doc).split("/")[-1].rstrip(".md").replace("-", " ")
+    return heading
 
 def get_file_name(doc):
     return doc.metadata["source"]
@@ -43,10 +49,7 @@ def split_docs(docs):
 
 def add_metadata_to_docs(docs, current_dir):
     for doc in docs:
-        heading = get_topmost_heading(doc).lstrip("# ")
-        if heading is None:
-            heading = get_file_name(doc).split("/")[-1].rstrip(".md").replace("-", " ")
-        doc.metadata["heading"] = heading
+        doc.metadata["heading"] = get_doc_heading(doc)
         doc.metadata["id"] = os.path.relpath(get_file_name(doc), current_dir)
 
 

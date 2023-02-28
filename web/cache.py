@@ -3,9 +3,10 @@ import os
 import pickle
 
 from pathlib import Path
+from .config import cache_dir
 
 
-def get_md5(text):
+def get_md5(text: str):
     return hashlib.md5(text.encode('utf-8')).hexdigest()
 
 
