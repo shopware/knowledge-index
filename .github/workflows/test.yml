@@ -1,5 +1,8 @@
 name: Build, deploy, test
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 jobs:
   test:
     name: test
