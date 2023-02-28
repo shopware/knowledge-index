@@ -12,6 +12,7 @@ from .upload import upload
 from .query import query, query_by_id, map_results
 from .ingest import ingest, ingest_diff, ingest_url
 from .cache import prune_cache
+from .storage import get_storage_info
 from .config import data_dir
 from .security import require_api_key
 from .params import (
@@ -71,6 +72,10 @@ An id is the relative file name of the .md file - for example: `src/docs/product
     {
         "name": "cache",
         "description": "Delete old cache from the filesystem"
+    },
+    {
+        "name": "storage",
+        "description": "Get storage usage"
     },
     {
         "name": "healthcheck",
@@ -162,6 +167,12 @@ def ingest_urls(
 @app.delete("/cache", tags=["cache"])
 def delete_cache(token: str = Depends(require_api_key)) -> Success:
     return {"success": prune_cache()}
+
+
+@app.get("/storage", tags=["storage"])
+def get_storage(token: str = Depends(require_api_key)):
+    return get_storage_info()
+
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio
 # https://fly.io/docs/languages-and-frameworks/python/
