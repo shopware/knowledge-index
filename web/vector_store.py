@@ -90,6 +90,9 @@ class FaissMap(VectorStore):
         metadatas = reordered["metadatas"]
         embeddings = reordered["embeddings"]
 
+        if len(embeddings) is 0:
+            exit('Empty embeddings')
+
         index = faiss.IndexFlatL2(len(embeddings[0]))
         index.add(np.array(embeddings, dtype=np.float32))
         documents = []

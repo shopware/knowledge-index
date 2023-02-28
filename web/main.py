@@ -57,7 +57,7 @@ async def post_upload_input(
     if isinstance(collection, Union[str, None]):
         collection = CollectionParam(collection=collection)
 
-    return upload(content, collection.collection)
+    return await upload(content, collection.collection)
 
 
 @app.post("/ingest")

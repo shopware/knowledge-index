@@ -5,7 +5,11 @@ import glob
 import shutil
 import zipfile
 
-def upload(content: UploadFile, collection):
+from fastapi import UploadFile
+
+from .config import data_dir
+
+async def upload(content: UploadFile, collection):
     input_zip = "input.zip"
     output_dir = data_dir(collection)
 
