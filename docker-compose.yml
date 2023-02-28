@@ -18,7 +18,7 @@ services:
 #      - ./:/code
 
   web:
-    image: ai-ml-web:latest
+    image: "${WEB_IMAGE:-ai-ml-web:latest}"
     environment:
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
     ports:
