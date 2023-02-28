@@ -32,13 +32,29 @@ Shopware document ingestion and querying API allows you to:
 """
 
 tags_metadata = [
-    {"name": "root", "description": "Hello World demo endpoint"},
-    {"name": "upload", "description": ""},
-    {"name": "ingest", "description": ""},
-    {"name": "ingest-diff", "description": ""},
-    {"name": "query", "description": ""},
-    {"name": "neighbours", "description": ""},
-    {"name": "healthcheck", "description": ""},
+    {
+        "name": "root",
+        "description": "Hello World demo endpoint"},
+    {
+        "name": "upload",
+        "description": "Upload a zip file containing .md files to be ingested. A collection name can be provided to organize the documents in multiple indices."},
+    {
+        "name": "ingest",
+        "description": "Ingest a collection of documents. This will create a new index and create and store vector embeddings for each document."},
+    {
+        "name": "ingest-diff",
+        "description": """Ingest unindexed documents of a collection. This will create and store vector embeddings for each uningested document.
+If a document is already indexed, it will be skipped, if no document is indexed a new index will be created."""},
+    {
+        "name": "query",
+        "description": "Query a collection based on a search query. This will return the 5 closest documents based on the vector embeddings."},
+    {
+        "name": "neighbours",
+        "description": """Obtain the closest neighbours for a given document id. This will return the 5 closest documents based on the vector embeddings.
+An id is the relative file name of the .md file - for example: `src/docs/products/extensions/migration-assistant/concept/dataselection-and-dataset.md`"""},
+    {
+        "name": "healthcheck",
+        "description": "Healthcheck endpoint"},
 ]
 
 app = FastAPI(
