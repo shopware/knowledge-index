@@ -4,14 +4,13 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
-import hashlib
 import os
 
 from langchain.vectorstores.base import VectorStore
 from langchain.docstore.document import Document
 from langchain.embeddings.base import Embeddings
 
-from .config import cache_dir
+from .cache import get_cache, set_cache
 
 
 class FaissMap(VectorStore):
@@ -130,15 +129,12 @@ class FaissMap(VectorStore):
             docstore, index_to_docstore_id = pickle.load(f)
         return cls(embeddings.embed_query, index, docstore, index_to_docstore_id)
 
-def get_md5(text):
-    return hashlib.md5(text.encode('utf-8')).hexdigest()
 
 def get_cached_embeddings(
         embedding: Embeddings,
         texts: List[str],
         metadatas: Optional[List[dict]] = None
 ):
-    my_cache_dir = cache_dir()
     cached = {
         "texts": [],
         "metadatas": [],
@@ -152,15 +148,9 @@ def get_cached_embeddings(
 
     # split by cached and non-cached
     for i, text in enumerate(texts):
-        # build cache key
-        cache_key = get_md5(text)
-        cache_file = os.path.join(my_cache_dir, cache_key)
+        cached_embedding = get_cache(text)
 
-        if os.path.isfile(cache_file):
-            # read cache
-            with open(cache_file, "rb") as f:
-                cached_embedding = pickle.load(f)
-
+        if cached_embedding:
             # mid-store texts, metadatas and embeddings
             cached["texts"].append(text)
             cached["metadatas"].append(metadatas[i])
@@ -173,23 +163,15 @@ def get_cached_embeddings(
     # get non-existent embeddings
     non_cached["embeddings"] = embedding.embed_documents(non_cached["texts"])
 
-    # create cache dir
-    if not os.path.isdir(my_cache_dir):
-        Path(my_cache_dir).mkdir(exist_ok=True, parents=True)
-
     # cache and merge cached and new embeddings
     for i in range(len(non_cached["texts"])):
-        # build cache key
-        cache_key = get_md5(non_cached["texts"][i])
-        cache_file = os.path.join(my_cache_dir, cache_key)
-
-        # write cache
-        with open(cache_file, "wb") as f:
-            pickle.dump(non_cached["embeddings"][i], f)
+        text = non_cached["texts"][i]
+        embedding = non_cached["embeddings"][i]
+        set_cache(text, embedding)
 
         # merge
-        cached["texts"].append(non_cached["texts"][i])
+        cached["texts"].append(text)
         cached["metadatas"].append(non_cached["metadatas"][i])
-        cached["embeddings"].append(non_cached["embeddings"][i])
+        cached["embeddings"].append(embedding)
 
     return cached
