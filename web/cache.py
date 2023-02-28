@@ -36,3 +36,6 @@ def set_cache(key: str, value):
     # write cache
     with open(cache_file, "wb") as f:
         pickle.dump(value, f)
+
+def prune_cache():
+    return True
