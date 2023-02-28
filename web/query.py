@@ -18,3 +18,18 @@ def query_by_id(id: str, collection):
     results = db.similarity_search_by_id(id, 5)
 
     return results
+
+
+def map_results(results):
+    mappedResults = []
+
+    for result in results:
+        source = result[0].metadata["source"]
+        heading = result[0].metadata["heading"]
+        excerpt = result[0].page_content
+        score = result[1]
+        mappedResults.append(
+            {"source": source, "score": str(score), "heading": heading}
+        )
+
+    return mappedResults
