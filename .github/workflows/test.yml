@@ -21,6 +21,7 @@ jobs:
 #          docker container exec -i $(docker ps -f name=ai-ml_ai-ml --format "{{.ID}}") pytest
 
       - name: Build, deploy and test
+        timeout-minutes: 15
         run: | 
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
           docker swarm init
