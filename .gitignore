@@ -10,3 +10,6 @@ devenv.local.nix
 data/*
 db/*
 cache/*
+!data/.gitkeep
+!db/.gitkeep
+!cache/.gitkeep
