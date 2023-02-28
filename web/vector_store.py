@@ -90,7 +90,7 @@ class FaissMap(VectorStore):
         metadatas = reordered["metadatas"]
         embeddings = reordered["embeddings"]
 
-        if len(embeddings) is 0:
+        if len(embeddings) == 0:
             exit('Empty embeddings')
 
         index = faiss.IndexFlatL2(len(embeddings[0]))
