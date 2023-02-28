@@ -11,6 +11,7 @@
 **Examples**
 
 ```bash
+$ export OPENAI_API_KEY="sk-..."
 $ export WEB_IMAGE="bojanrajh/python:latest"
 ```
 
