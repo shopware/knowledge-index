@@ -21,6 +21,7 @@ services:
     image: "${WEB_IMAGE:-ai-ml-web:latest}"
     environment:
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      KNOWLEDGE_API_KEY: "${KNOWLEDGE_API_KEY}"
     ports:
       - 10002:80
     volumes:

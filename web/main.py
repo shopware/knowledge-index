@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI, UploadFile, Query, Form, Body
+from fastapi import FastAPI, UploadFile, Query, Form, Body, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 import zipfile
@@ -12,6 +12,7 @@ from .upload import upload
 from .query import query, query_by_id, map_results
 from .ingest import ingest, ingest_diff, ingest_url
 from .config import data_dir
+from .security import require_api_key
 from .params import (
     SearchParam,
     CollectionParam,
@@ -34,24 +35,34 @@ Shopware document ingestion and querying API allows you to:
 tags_metadata = [
     {
         "name": "root",
-        "description": "Hello World demo endpoint"},
+        "description": "Hello World demo endpoint"
+    },
+    {
+        "name": "me",
+        "description": "Test authentication by providing `X-Shopware-Api-Key` header"
+    },
     {
         "name": "upload",
-        "description": "Upload a zip file containing .md files to be ingested. A collection name can be provided to organize the documents in multiple indices."},
+        "description": "Upload a zip file containing .md files to be ingested. A collection name can be provided to organize the documents in multiple indices."
+    },
     {
         "name": "ingest",
-        "description": "Ingest a collection of documents. This will create a new index and create and store vector embeddings for each document."},
+        "description": "Ingest a collection of documents. This will create a new index and create and store vector embeddings for each document."
+    },
     {
         "name": "ingest-diff",
         "description": """Ingest unindexed documents of a collection. This will create and store vector embeddings for each uningested document.
-If a document is already indexed, it will be skipped, if no document is indexed a new index will be created."""},
+If a document is already indexed, it will be skipped, if no document is indexed a new index will be created."""
+    },
     {
         "name": "query",
-        "description": "Query a collection based on a search query. This will return the 5 closest documents based on the vector embeddings."},
+        "description": "Query a collection based on a search query. This will return the 5 closest documents based on the vector embeddings."
+    },
     {
         "name": "neighbours",
         "description": """Obtain the closest neighbours for a given document id. This will return the 5 closest documents based on the vector embeddings.
-An id is the relative file name of the .md file - for example: `src/docs/products/extensions/migration-assistant/concept/dataselection-and-dataset.md`"""},
+An id is the relative file name of the .md file - for example: `src/docs/products/extensions/migration-assistant/concept/dataselection-and-dataset.md`"""
+    },
     {
         "name": "healthcheck",
         "description": "Healthcheck endpoint"},
@@ -82,11 +93,16 @@ app.add_middleware(
 def read_root() -> Hello:
     return {"Hello": "World"}
 
+@app.get("/me", tags=["me"])
+def read_me(token: str = Depends(require_api_key)) -> Success:
+    return {"success": True}
+
 
 @app.post("/upload-input", tags=["upload"])
 async def post_upload_input(
     content: UploadFile,
     collection: Union[CollectionParam, None, str] = CollectionParam(),
+    token: str = Depends(require_api_key),
 ):
     # workaround - https://fastapi.tiangolo.com/tutorial/request-forms-and-files/#define-file-and-form-parameters
     if isinstance(collection, Union[str, None]):
@@ -96,12 +112,18 @@ async def post_upload_input(
 
 
 @app.post("/ingest", tags=["ingest"])
-def post_ingest(collection: CollectionParam = CollectionParam()) -> Success:
+def post_ingest(
+        collection: CollectionParam = CollectionParam(),
+        token: str = Depends(require_api_key),
+) -> Success:
     return {"success": ingest(collection.collection)}
 
 
 @app.post("/ingest-diff", tags=["ingest-diff"])
-def post_ingest(collection: CollectionParam = CollectionParam()) -> Success:
+def post_ingest(
+        collection: CollectionParam = CollectionParam(),
+        token: str = Depends(require_api_key),
+) -> Success:
     return {"success": ingest_diff(collection.collection)}
 
 
@@ -121,7 +143,10 @@ def post_query(data: PostNeighboursParams) -> Results:
 
 
 @app.post("/ingest-url")
-def ingest_urls(data: PostURLIngestParams) -> Success:
+def ingest_urls(
+        data: PostURLIngestParams,
+        token: str = Depends(require_api_key),
+) -> Success:
     return {"success": ingest_url(data.url, data.collection)}
 
 
