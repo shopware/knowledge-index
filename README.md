@@ -209,3 +209,4 @@ Fly.io deployment:
 - `fly secrets set OPENAI_API_KEY="..."` - or fallback to tensorflow
 - `fly secrets set KNOWLEDGE_API_KEY="..."` - required
 - `fly volumes create data --region ams --size 1` + see [./fly-toml](./fly-toml)
+- `fly autoscale set min=2 max=4`
