@@ -21,16 +21,22 @@ def query_by_id(id: str, collection):
 
 
 def map_result(result):
-    source = result[0].metadata["source"]
-    heading = result[0].metadata["heading"]
-    excerpt = result[0].page_content
+    doc = result[0]
     score = result[1]
-    return {"source": source, "score": str(score), "heading": heading}
+    id = doc.metadata["id"]
+    heading = doc.metadata["heading"]
+    description = doc.metadata["description"]
+
+    return {
+        "id": id,
+        "score": str(score),
+        "heading": heading,
+        "description": description,
+    }
 
 
 def map_results(results):
     mappedResults = []
-
     for result in results:
         mappedResults.append(map_result(result))
 

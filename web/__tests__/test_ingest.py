@@ -1,4 +1,4 @@
-from ..ingest import get_topmost_heading, get_doc_heading, get_file_name, split_docs, add_metadata_to_docs
+from ..ingest import get_topmost_heading, get_doc_heading, get_doc_description, get_file_name, split_docs, add_metadata_to_docs
 from .helper import create_doc
 import random
 import string
@@ -20,21 +20,28 @@ def test_get_topmost_heading():
     assert heading == 'Heading'
 
 
-def test_get_doc_heading():
+def test_get_doc_info():
     document = create_doc("""---
 title: frontmatter Heading
+description: frontmatter Description
 ---
 # heading""")
     heading = get_doc_heading(document)
+    description = get_doc_description(document)
     assert heading == 'frontmatter Heading'
+    assert description == 'frontmatter Description'
 
     document = create_doc("# heading")
     heading = get_doc_heading(document)
+    description = get_doc_description(document)
     assert heading == 'heading'
+    assert description is None
 
     document = create_doc("no heading", {'source': 'my/file-with-long-name.md'})
     heading = get_doc_heading(document)
+    description = get_doc_description(document)
     assert heading == 'File With Long Name'
+    assert description is None
 
 
 def test_get_file_name():

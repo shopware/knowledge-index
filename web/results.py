@@ -5,9 +5,10 @@ class Success(BaseModel):
     success: bool
 
 class Result(BaseModel):
+    id: str
     score: str
     heading: str
-    source: str
+    description: Union[str, None]
 
 class Results(BaseModel):
     results: List[Result]

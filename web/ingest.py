@@ -19,14 +19,14 @@ from .vector_store import FaissMap
 from .scraper import get_link_tree, filter_working_urls
 
 
-def get_frontmatter_heading(doc):
+def get_frontmatter_info(doc, key: str):
     metadata, content = frontmatter.parse(doc.page_content)
 
     if not metadata:
         return None
 
-    if "title" in metadata:
-        return metadata["title"]
+    if key in metadata:
+        return metadata[key]
 
     return None
 
@@ -40,7 +40,7 @@ def get_topmost_heading(doc):
 
 def get_doc_heading(doc):
     # 1 - frontmatter heading
-    heading = get_frontmatter_heading(doc)
+    heading = get_frontmatter_info(doc, "title")
 
     # 2 - md heading
     if heading is None:
@@ -52,6 +52,10 @@ def get_doc_heading(doc):
 
     # title case
     return heading
+
+
+def get_doc_description(doc):
+    return get_frontmatter_info(doc, "description")
 
 def get_file_name(doc):
     return doc.metadata["source"]
@@ -71,8 +75,9 @@ def split_docs(docs):
 
 def add_metadata_to_docs(docs, current_dir):
     for doc in docs:
-        doc.metadata["heading"] = get_doc_heading(doc)
         doc.metadata["id"] = os.path.relpath(get_file_name(doc), current_dir)
+        doc.metadata["heading"] = get_doc_heading(doc)
+        doc.metadata["description"] = get_doc_description(doc)
 
 
 def ingest_url(url, collection):
