@@ -13,6 +13,7 @@ from .query import query, query_by_id, map_results
 from .ingest import ingest, ingest_diff, ingest_url
 from .cache import prune_cache
 from .storage import get_storage_info
+from .status import get_status
 from .config import data_dir
 from .security import require_api_key
 from .params import (
@@ -174,4 +175,4 @@ def get_storage(token: str = Depends(require_api_key)):
 # https://fly.io/docs/reference/secrets/#setting-secrets
 @app.get("/healthcheck", tags=["healthcheck"])
 def healthcheck() -> Status:
-    return {"status": "ok"}
+    return get_status()

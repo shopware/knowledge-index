@@ -17,7 +17,8 @@ jobs:
 
       - name: Build, deploy and test
         timeout-minutes: 15
-        run: | 
+        run: |
+          echo ${{ github.sha }} > commit.txt
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
           docker swarm init
           docker stack deploy ai-ml -c docker-compose.yml --prune

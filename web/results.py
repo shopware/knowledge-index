@@ -13,6 +13,7 @@ class Results(BaseModel):
 
 class Status(BaseModel):
     status: Literal["ok"]
+    hash: Union[str, None]
 
 class Hello(BaseModel):
     Hello: Literal["World"]
