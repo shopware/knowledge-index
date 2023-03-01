@@ -5,43 +5,22 @@ on:
       - main
 jobs:
   test:
-    name: Test
+    name: test
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Build
-        timeout-minutes: 15
-        run: | 
-          docker build --build-arg POETRY_ARG="--without dev" -t ai-ml-web:latest -f ./Dockerfile-web .
-          docker swarm init
-          docker stack deploy ai-ml -c docker-compose.yml --prune
-          until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a -q --filter ancestor=ai-ml-web --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
-          docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
-
-  prod:
-    name: Build prod
-    runs-on: ubuntu-latest
-    needs:
-      - test
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
     steps:
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build
+      - name: Build, deploy and test
         timeout-minutes: 15
         run: | 
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
           docker swarm init
           docker stack deploy ai-ml -c docker-compose.yml --prune
           until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a -q --filter ancestor=ai-ml-web --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
-        # no test step
-
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Deploy to fly.io
-        timeout-minutes: 15
-        run: flyctl deploy --local-only -i ai-ml-web:latest
+          docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
+          flyctl deploy --local-only -i ai-ml-web:latest
