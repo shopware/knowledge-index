@@ -5,6 +5,8 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 
+import frontmatter
+
 from filecmp import dircmp
 import os
 import shutil
@@ -17,13 +19,39 @@ from .vector_store import FaissMap
 from .scraper import get_link_tree, filter_working_urls
 
 
+def get_frontmatter_heading(doc):
+    metadata, content = frontmatter.parse(doc.page_content)
+
+    if not metadata:
+        return None
+
+    if "title" in metadata:
+        return metadata["title"]
+
+    return None
+
 def get_topmost_heading(doc):
     for line in doc.page_content.splitlines():
         line = line.strip()
         if line.startswith("#"):
-            return line
+            return line.lstrip("# ")
     return None
 
+
+def get_doc_heading(doc):
+    # 1 - frontmatter heading
+    heading = get_frontmatter_heading(doc)
+
+    # 2 - md heading
+    if heading is None:
+        heading = get_topmost_heading(doc)
+
+    # 3 - generate heading from file name
+    if heading is None:
+        heading = get_file_name(doc).split("/")[-1].rstrip(".md").replace("-", " ").title()
+
+    # title case
+    return heading
 
 def get_file_name(doc):
     return doc.metadata["source"]
@@ -43,10 +71,7 @@ def split_docs(docs):
 
 def add_metadata_to_docs(docs, current_dir):
     for doc in docs:
-        heading = get_topmost_heading(doc).lstrip("# ")
-        if heading is None:
-            heading = get_file_name(doc).split("/")[-1].rstrip(".md").replace("-", " ")
-        doc.metadata["heading"] = heading
+        doc.metadata["heading"] = get_doc_heading(doc)
         doc.metadata["id"] = os.path.relpath(get_file_name(doc), current_dir)
 
 

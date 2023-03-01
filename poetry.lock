@@ -1967,6 +1967,25 @@ files = [
 lxml = ">=2.3.2"
 
 [[package]]
+name = "python-frontmatter"
+version = "1.0.0"
+description = "Parse and manage posts with YAML (or other) frontmatter"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-frontmatter-1.0.0.tar.gz", hash = "sha256:e98152e977225ddafea6f01f40b4b0f1de175766322004c826ca99842d19a7cd"},
+    {file = "python_frontmatter-1.0.0-py3-none-any.whl", hash = "sha256:766ae75f1b301ffc5fe3494339147e0fd80bc3deff3d7590a93991978b579b08"},
+]
+
+[package.dependencies]
+PyYAML = "*"
+
+[package.extras]
+docs = ["sphinx"]
+test = ["pyaml", "pytest", "toml"]
+
+[[package]]
 name = "python-magic"
 version = "0.4.27"
 description = "File type identification using libmagic"
@@ -3020,4 +3039,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "29096d289b7571df72a9c724b8990b5dd3c790232a82090f431dad70415a50b9"
+content-hash = "55872e434b1ec8bd5cf5c689ab63533b555b1f463547649de1ef4216a652b094"
