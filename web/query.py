@@ -35,3 +35,16 @@ def map_results(results):
         mappedResults.append(map_result(result))
 
     return mappedResults
+
+
+def unique_results(results, key: str = "source"):
+    unique = []
+    seen = set()
+    for result in results:
+        if result[key] in seen:
+            continue
+
+        unique.append(result)
+        seen.add(result[key])
+
+    return unique

@@ -9,7 +9,7 @@ import glob
 import shutil
 
 from .upload import upload
-from .query import query, query_by_id, map_results
+from .query import query, query_by_id, map_results, unique_results
 from .ingest import ingest, ingest_diff, ingest_url
 from .cache import prune_cache
 from .storage import get_storage_info
@@ -140,7 +140,7 @@ def post_query(data: PostQueryParams) -> Results:
 
     results.sort(key=lambda result: float(result["score"]))
 
-    return {"results": results}
+    return {"results": unique_results(results)}
 
 
 @app.post("/neighbours", tags=["neighbours"])

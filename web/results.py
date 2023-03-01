@@ -7,6 +7,7 @@ class Success(BaseModel):
 class Result(BaseModel):
     score: str
     heading: str
+    source: str
 
 class Results(BaseModel):
     results: List[Result]
