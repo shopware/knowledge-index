@@ -35,51 +35,37 @@ Shopware document ingestion and querying API allows you to:
 """
 
 tags_metadata = [
-    {
-        "name": "root",
-        "description": "Hello World demo endpoint"
-    },
+    {"name": "root", "description": "Hello World demo endpoint"},
     {
         "name": "me",
-        "description": "Test authentication by providing `X-Shopware-Api-Key` header"
+        "description": "Test authentication by providing `X-Shopware-Api-Key` header",
     },
     {
         "name": "upload",
-        "description": "Upload a zip file containing .md files to be ingested. A collection name can be provided to organize the documents in multiple indices."
+        "description": "Upload a zip file containing .md files to be ingested. A collection name can be provided to organize the documents in multiple indices.",
     },
     {
         "name": "ingest",
-        "description": "Ingest a collection of documents. This will create a new index and create and store vector embeddings for each document."
+        "description": "Ingest a collection of documents. This will create a new index and create and store vector embeddings for each document.",
     },
     {
         "name": "ingest-diff",
         "description": """Ingest unindexed documents of a collection. This will create and store vector embeddings for each uningested document.
-If a document is already indexed, it will be skipped, if no document is indexed a new index will be created."""
+If a document is already indexed, it will be skipped, if no document is indexed a new index will be created.""",
     },
-    {
-        "name": "ingest-url",
-        "description": ""
-    },
+    {"name": "ingest-url", "description": ""},
     {
         "name": "query",
-        "description": "Query a collection based on a search query. This will return the 5 closest documents based on the vector embeddings."
+        "description": "Query a collection based on a search query. This will return the 5 closest documents based on the vector embeddings.",
     },
     {
         "name": "neighbours",
         "description": """Obtain the closest neighbours for a given document id. This will return the 5 closest documents based on the vector embeddings.
-An id is the relative file name of the .md file - for example: `src/docs/products/extensions/migration-assistant/concept/dataselection-and-dataset.md`"""
+An id is the relative file name of the .md file - for example: `src/docs/products/extensions/migration-assistant/concept/dataselection-and-dataset.md`""",
     },
-    {
-        "name": "cache",
-        "description": "Delete old cache from the filesystem"
-    },
-    {
-        "name": "storage",
-        "description": "Get storage usage"
-    },
-    {
-        "name": "healthcheck",
-        "description": "Healthcheck endpoint"},
+    {"name": "cache", "description": "Delete old cache from the filesystem"},
+    {"name": "storage", "description": "Get storage usage"},
+    {"name": "healthcheck", "description": "Healthcheck endpoint"},
 ]
 
 app = FastAPI(
@@ -107,6 +93,7 @@ app.add_middleware(
 def read_root() -> Hello:
     return {"Hello": "World"}
 
+
 @app.get("/me", tags=["me"])
 def read_me(token: str = Depends(require_api_key)) -> Success:
     return {"success": True}
@@ -127,25 +114,32 @@ async def post_upload_input(
 
 @app.post("/ingest", tags=["ingest"])
 def post_ingest(
-        collection: CollectionParam = CollectionParam(),
-        token: str = Depends(require_api_key),
+    collection: CollectionParam = CollectionParam(),
+    token: str = Depends(require_api_key),
 ) -> Success:
     return {"success": ingest(collection.collection)}
 
 
 @app.post("/ingest-diff", tags=["ingest-diff"])
 def post_ingest(
-        collection: CollectionParam = CollectionParam(),
-        token: str = Depends(require_api_key),
+    collection: CollectionParam = CollectionParam(),
+    token: str = Depends(require_api_key),
 ) -> Success:
     return {"success": ingest_diff(collection.collection)}
 
 
 @app.post("/query", tags=["query"])
 def post_query(data: PostQueryParams) -> Results:
-    results = query(data.search, data.collection)
+    results = []
+    if data.collections and len(data.collections) > 0:
+        for collection in data.collections:
+            results += map_results(query(data.search, collection))
+    else:
+        results = map_results(query(data.search, data.collection))
 
-    return {"results": map_results(results)}
+    results.sort(key=lambda result: float(result["score"]))
+
+    return {"results": results}
 
 
 @app.post("/neighbours", tags=["neighbours"])
@@ -158,8 +152,8 @@ def post_query(data: PostNeighboursParams) -> Results:
 
 @app.post("/ingest-url", tags=["inject-url"])
 def ingest_urls(
-        data: PostURLIngestParams,
-        token: str = Depends(require_api_key),
+    data: PostURLIngestParams,
+    token: str = Depends(require_api_key),
 ) -> Success:
     return {"success": ingest_url(data.url, data.collection)}
 
