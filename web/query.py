@@ -43,7 +43,7 @@ def map_results(results):
     return mappedResults
 
 
-def unique_results(results, key: str = "source"):
+def unique_results(results, key: str = "id"):
     unique = []
     seen = set()
     for result in results:
