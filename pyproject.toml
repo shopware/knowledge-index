@@ -26,6 +26,7 @@ python-multipart = "^0.0.5"
 aiofiles = "^23.1.0"
 beautifulsoup4 = "^4.11.2"
 lxml = "^4.9.2"
+python-frontmatter = "^1.0.0"
 
 
 [build-system]

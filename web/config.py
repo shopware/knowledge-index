@@ -1,5 +1,6 @@
 import os
 from typing import Union
+from pydantic import BaseSettings
 
 
 def prefix(path: str) -> str:
@@ -43,3 +44,18 @@ def cache_dir():
     conf = env_dir("CACHE_DIR", prefix("data/cache"), None)
 
     return os.environ.get(conf["env"], conf["dir"])
+
+
+# not used yet
+class Settings(BaseSettings):
+    # api keys
+    openai_api_key: Union[str, None] = None
+    knowledge_api_key: Union[str, None] = None
+    # data dirs
+    root_dir: str = '/'
+    data_dir: str = '/data/docs'
+    db_dir: str = '/data/db'
+    cache_dir: str = '/data/cache'
+
+
+settings = Settings()

@@ -7,7 +7,7 @@ protected_route = APIKeyHeader(
 )
 
 async def require_api_key(api_key_header: str = Security(protected_route)):
-    if api_key_header == os.environ.get("KNOWLEDGE_API_KEY"):
+    if len(api_key_header) > 0 and api_key_header == os.environ.get("KNOWLEDGE_API_KEY"):
         return api_key_header
 
     raise HTTPException(

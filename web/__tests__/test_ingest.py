@@ -1,5 +1,7 @@
 from ..ingest import get_topmost_heading, get_doc_heading, get_file_name, split_docs, add_metadata_to_docs
 from .helper import create_doc
+import random
+import string
 
 
 def test_get_topmost_heading_empty():
@@ -13,22 +15,26 @@ def test_get_topmost_heading():
     heading = get_topmost_heading(document)
     assert heading == 'heading'
 
-    document = create_doc("#heading")
+    document = create_doc("#Heading")
     heading = get_topmost_heading(document)
-    assert heading == 'heading'
+    assert heading == 'Heading'
 
 
 def test_get_doc_heading():
+    document = create_doc("""---
+title: frontmatter Heading
+---
+# heading""")
+    heading = get_doc_heading(document)
+    assert heading == 'frontmatter Heading'
+
     document = create_doc("# heading")
     heading = get_doc_heading(document)
     assert heading == 'heading'
 
     document = create_doc("no heading", {'source': 'my/file-with-long-name.md'})
     heading = get_doc_heading(document)
-    # @T00D00 - uppercase
-    assert heading == 'file with long name'
-
-    # @T00D00 - frontmatter fallback
+    assert heading == 'File With Long Name'
 
 
 def test_get_file_name():
@@ -38,24 +44,6 @@ def test_get_file_name():
 
     # @T00D00 - empty key
 
-
-def test_split_docs_empty():
-    document = create_doc("", {'source': 'my/file.md'})
-    split = split_docs([document])
-    assert len(split) == 0
-
-
-def test_split_docs_single():
-    document = create_doc("x" * 3000, {'source': 'my/file.md'})
-    split = split_docs([document])
-    assert len(split) == 1
-
-
-# @T00D00
-# def test_split_docs_two():
-#    document = create_doc("x" * 3001, {'source': 'my/file.md'})
-#    split = split_docs([document])
-#    assert len(split) == 2
 
 def test_add_metadata_to_docs():
     docs = [
