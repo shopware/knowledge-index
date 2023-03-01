@@ -19,16 +19,16 @@ def test_map_results():
 
 def test_unique_results():
     results = [
-        {"source": "a", "score": "0.1"},
-        {"source": "a", "score": "0.2"},
-        {"source": "b", "score": "0.1"},
-        {"source": "c", "score": "0.2"},
+        {"id": "a", "score": "0.1"},
+        {"id": "a", "score": "0.2"},
+        {"id": "b", "score": "0.1"},
+        {"id": "c", "score": "0.2"},
     ]
 
     filtered = unique_results(results)
     keys = []
     for result in filtered:
-        keys.append(result["source"])
+        keys.append(result["id"])
 
     assert len(filtered) == 3
     assert keys == ["a", "b", "c"]
