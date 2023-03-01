@@ -42,19 +42,16 @@ def test_get_file_name():
     filename = get_file_name(document)
     assert filename == 'my/file.md'
 
-    # @T00D00 - empty key
-
 
 def test_add_metadata_to_docs():
     docs = [
         create_doc("", {'source': 'some/source.md'}),
         create_doc("# some heading", {'source': 'another/source.md'}),
     ]
+    add_metadata_to_docs(docs, '')
 
-    # @T00D00
-    return
-    assert docs[0].metadata["heading"] is None
+    assert docs[0].metadata["heading"] == "Source"
     assert docs[1].metadata["heading"] == "some heading"
 
-    assert docs[0].metadata["id"] == 'some/source'
-    assert docs[1].metadata["id"] == "another/source"
+    assert docs[0].metadata["id"] == 'some/source.md'
+    assert docs[1].metadata["id"] == "another/source.md"

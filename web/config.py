@@ -20,7 +20,7 @@ def get_embedding_fn():
         return TensorflowHubEmbeddings(model_url=url)
 
 
-def env_dir(env, dir, collection=Union[None, str]):
+def env_dir(env, dir, collection: str = None):
     if collection:
         env += "_" + collection.upper()
         dir += "-" + collection
@@ -28,13 +28,13 @@ def env_dir(env, dir, collection=Union[None, str]):
     return {"env": env, "dir": dir}
 
 
-def data_dir(collection=Union[None, str]):
+def data_dir(collection: str = None):
     conf = env_dir("DATA_DIR", prefix("data/docs"), collection)
 
     return os.environ.get(conf["env"], conf["dir"])
 
 
-def db_dir(collection=Union[None, str]):
+def db_dir(collection: str = None):
     conf = env_dir("DB_DIR", prefix("data/db"), collection)
 
     return os.environ.get(conf["env"], conf["dir"])
