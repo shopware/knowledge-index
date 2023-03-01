@@ -1,3 +1,5 @@
+
+
 import hashlib
 import os
 import pickle
@@ -6,8 +8,8 @@ from pathlib import Path
 from .config import cache_dir
 
 
-def get_md5(text: str):
-    return hashlib.md5(text.encode('utf-8')).hexdigest()
+def get_md5(text):
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
 def get_cache(key: str):
@@ -37,6 +39,7 @@ def set_cache(key: str, value):
     # write cache
     with open(cache_file, "wb") as f:
         pickle.dump(value, f)
+
 
 def prune_cache():
     return True
