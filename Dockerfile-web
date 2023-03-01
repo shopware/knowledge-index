@@ -15,7 +15,7 @@ RUN poetry install --no-root --no-cache --no-interaction $POETRY_ARG
 RUN python -c "import nltk; nltk.download('punkt')"
 RUN python -c "import nltk; nltk.download('averaged_perceptron_tagger')"
 
-COPY ./ ./code
+COPY ./ /code
 
 # add --proxy-headers when running behind proxy
 CMD ["uvicorn", "web.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
