@@ -22,7 +22,8 @@ def get_links(url: str) -> List[str]:
 
         link = urlparse(link)
 
-        if link.netloc != "":
+        same_site = link.netloc == "" or link.netloc == root.netloc
+        if not same_site:
             continue
 
         abs_link = root._replace(path=link.path)
