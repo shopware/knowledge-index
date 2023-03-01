@@ -16,4 +16,8 @@ def test_write_main():
 def test_read_healthcheck():
     response = client.get("/healthcheck")
     assert response.status_code == 200
-    assert response.json() == {'status': 'ok'}
+
+    json = response.json()
+    assert json["status"] == "ok"
+    assert json["status"] == "ok"
+    assert "hash" in json
