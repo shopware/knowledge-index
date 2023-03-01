@@ -27,6 +27,8 @@ Optionally, build local docker image with:
 
 ```bash
 $ docker build -t ai-ml-web:latest -f ./Dockerfile-web .
+# or for local version with tensorflow and pytest
+$ docker build -t ai-ml-web:latest -f ./Dockerfile-web-nocode .
 ```
 
 Init docker swarm and deploy stack.

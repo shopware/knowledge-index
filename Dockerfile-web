@@ -1,5 +1,7 @@
 FROM python:3.10-bullseye
 
+ARG POERTY_ARG
+
 RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN ln -s /root/.local/share/pypoetry/venv/bin/poetry /usr/local/bin/
 
@@ -8,7 +10,7 @@ COPY ./pyproject.toml ./poetry.lock ./code/
 WORKDIR /code
 
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-root --no-cache --no-interaction
+RUN poetry install --no-root --no-cache --no-interaction $POETRY_ARG
 
 RUN python -c "import nltk; nltk.download('punkt')"
 RUN python -c "import nltk; nltk.download('averaged_perceptron_tagger')"
