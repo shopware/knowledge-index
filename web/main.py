@@ -9,7 +9,7 @@ import glob
 import shutil
 
 from .upload import upload
-from .query import query, query_by_id, map_results, unique_results
+from .query import query, query_by_id, query_n_with_fallback, map_results, unique_results
 from .ingest import ingest, ingest_diff, ingest_url
 from .cache import prune_cache
 from .storage import get_storage_info
@@ -144,16 +144,11 @@ def post_query(data: PostQueryParams) -> Results:
 
 
 @app.post("/neighbours", tags=["neighbours"])
-def post_query(data: PostNeighboursParams) -> Results:
-    id = data.get_id()
-    try:
-        results = query_by_id(id, data.collection)
-    except KeyError:
-        results = query(id, data.collection)
+def post_neighbours(data: PostNeighboursParams) -> Results:
+    num = 5
+    results = query_n_with_fallback(data.get_id(), data.collection, num)
 
-    results = [result for result in results if result[0].metadata["id"] != id]
-
-    return {"results": map_results(results)}
+    return {"results": unique_results(map_results(results))[0:num]}
 
 
 @app.post("/ingest-url", tags=["inject-url"])
