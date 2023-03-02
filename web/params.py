@@ -6,6 +6,13 @@ from pydantic import BaseModel
 class IdQuery(BaseModel):
     id: str
 
+    def get_id(self):
+        id = self.id
+        if id.endswith('/'):
+            return id + "index.md"
+
+        return id
+
 
 class SearchParam(BaseModel):
     search: str = Body(

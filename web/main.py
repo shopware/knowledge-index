@@ -145,12 +145,13 @@ def post_query(data: PostQueryParams) -> Results:
 
 @app.post("/neighbours", tags=["neighbours"])
 def post_query(data: PostNeighboursParams) -> Results:
+    id = data.get_id()
     try:
-        results = query_by_id(data.id, data.collection)
+        results = query_by_id(id, data.collection)
     except KeyError:
-        results = query(data.id, data.collection)
+        results = query(id, data.collection)
 
-    results = [result for result in results if result[0].metadata["id"] != data.id]
+    results = [result for result in results if result[0].metadata["id"] != id]
 
     return {"results": map_results(results)}
 

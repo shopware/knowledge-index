@@ -5,6 +5,13 @@ from ..params import IdQuery, SearchParam, URLParam, CollectionParam, PostQueryP
 def test_id_query():
     param = IdQuery(id="my-id")
     assert param.id == "my-id"
+    assert param.id == param.get_id()
+
+
+def test_id_query_index():
+    param = IdQuery(id="my-id/")
+    assert param.id == "my-id/"
+    assert param.get_id() == "my-id/index.md"
 
 
 def test_search_param():
