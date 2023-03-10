@@ -118,7 +118,12 @@ def post_ingest(
     collection: CollectionParam = CollectionParam(),
     token: str = Depends(require_api_key),
 ) -> Success:
-    return {"success": ingest(collection.collection)}
+    db = ingest(collection.collection)
+
+    return {
+        "success": True,
+        "metadatas": db.stats["metadatas"]
+    }
 
 
 @app.post("/ingest-diff", tags=["ingest-diff"])

@@ -107,7 +107,7 @@ def ingest_url(url, collection):
     return True
 
 
-def ingest(collection):
+def ingest(collection) -> FaissMap:
     current_dir = data_dir(collection)
     ingested_dir = current_dir + "_ingested"
 
@@ -135,7 +135,7 @@ def ingest(collection):
         shutil.rmtree(ingested_dir)
     shutil.copytree(current_dir, ingested_dir)
 
-    return True
+    return db
 
 
 def get_doc_from_file(file):

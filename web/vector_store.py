@@ -20,12 +20,14 @@ class FaissMap(VectorStore):
         index: Any,
         docstore: Dict[str, Document],
         index_to_docstore_id: Dict[int, str],
+        stats: Any = None
     ):
         self.source_mapping = {}
         self.embedding_function = embedding_function
         self.index = index
         self.docstore = docstore
         self.index_to_docstore_id = index_to_docstore_id
+        self.stats = stats
 
     def add_texts(
         self,
@@ -84,7 +86,8 @@ class FaissMap(VectorStore):
         **kwargs: Any,
     ) -> Any:
         #embeddings = embedding.embed_documents(texts)
-        reordered = get_cached_embeddings(embedding, texts, metadatas)
+        summary = get_cached_embeddings(embedding, texts, metadatas)
+        reordered = summary["all"]
         texts = reordered["texts"]
         metadatas = reordered["metadatas"]
         embeddings = reordered["embeddings"]
@@ -105,7 +108,7 @@ class FaissMap(VectorStore):
         docstore = {doc.metadata["id"]: doc for doc in documents}
 
         index_to_id = {i: doc.metadata["id"] for i, doc in enumerate(documents)}
-        return cls(embedding.embed_query, index, docstore, index_to_id)
+        return cls(embedding.embed_query, index, docstore, index_to_id, summary["new"])
 
     def save_local(self, folder_path: str) -> None:
         path = Path(folder_path)
@@ -174,4 +177,7 @@ def get_cached_embeddings(
         cached["metadatas"].append(non_cached["metadatas"][i])
         cached["embeddings"].append(embedding)
 
-    return cached
+    return {
+        "all": cached,
+        "new": non_cached,
+    }
