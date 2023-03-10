@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union, List, Optional
 from fastapi import Body, UploadFile
 from pydantic import BaseModel
 
@@ -25,11 +25,11 @@ class URLParam(BaseModel):
 
 
 class CollectionParam(BaseModel):
-    collection: Union[str, None] = Body(
+    collection: Optional[str, None] = Body(
         default=None,
         min_length=3,
         max_length=128,
-        regex="^$|^([a-z0-9_]{3,40}|--[a-z0-9_]{3,40}|[a-z0-9_]{1,40}--[a-z0-9_]{1,40}|[a-z0-9_]{3,40}--[a-z0-9_]{1,40}--[a-z0-9_]{1,40})$",
+        regex="^([a-z0-9_]{3,40}|--[a-z0-9_]{3,40}|[a-z0-9_]{1,40}--[a-z0-9_]{1,40}|[a-z0-9_]{3,40}--[a-z0-9_]{1,40}--[a-z0-9_]{1,40})$",
         example={"collection": "test"},
     )
     collections: List[str] = Body(
