@@ -15,6 +15,7 @@ from .cache import prune_cache
 from .storage import get_storage_info
 from .status import get_status
 from .config import data_dir
+from .exception import EmptyEmbeddings
 from .security import require_api_key
 from .params import (
     SearchParam,
@@ -23,7 +24,7 @@ from .params import (
     PostNeighboursParams,
     PostURLIngestParams,
 )
-from .results import Results, Result, Success, Hello, Status
+from .results import Results, Result, Success, SuccessWithMetadatas, Hello, Status
 
 import logging
 
@@ -116,9 +117,15 @@ async def post_upload_input(
 @app.post("/ingest", tags=["ingest"])
 def post_ingest(
     collection: CollectionParam = CollectionParam(),
-    token: str = Depends(require_api_key),
-) -> Success:
-    db = ingest(collection.collection)
+#    token: str = Depends(require_api_key),
+) -> SuccessWithMetadatas:
+    try:
+        db = ingest(collection.collection)
+    except EmptyEmbeddings:
+        return {
+            "success": True,
+            "metadatas": []
+        }
 
     return {
         "success": True,

@@ -1,0 +1,2 @@
+class EmptyEmbeddings(Exception):
+    pass

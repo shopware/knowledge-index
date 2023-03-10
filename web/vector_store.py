@@ -11,6 +11,7 @@ from langchain.docstore.document import Document
 from langchain.embeddings.base import Embeddings
 
 from .cache import get_cache, set_cache
+from .exception import EmptyEmbeddings
 
 
 class FaissMap(VectorStore):
@@ -93,7 +94,7 @@ class FaissMap(VectorStore):
         embeddings = reordered["embeddings"]
 
         if len(embeddings) == 0:
-            exit('Empty embeddings')
+            raise EmptyEmbeddings
 
         index = faiss.IndexFlatL2(len(embeddings[0]))
         index.add(np.array(embeddings, dtype=np.float32))

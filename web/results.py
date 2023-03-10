@@ -1,8 +1,11 @@
-from typing import Union, List, Literal
+from typing import Union, List, Literal, Dict
 from pydantic import BaseModel
 
 class Success(BaseModel):
     success: bool
+
+class SuccessWithMetadatas(Success):
+    metadatas: Union[List, Dict, None]
 
 class Result(BaseModel):
     id: str
