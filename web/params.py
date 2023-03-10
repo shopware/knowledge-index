@@ -25,7 +25,7 @@ class URLParam(BaseModel):
 
 
 class CollectionParam(BaseModel):
-    collection: Optional[str, None] = Body(
+    collection: Optional[str] = Body(
         default=None,
         min_length=3,
         max_length=128,
