@@ -1,4 +1,4 @@
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Dict
 from fastapi import Body, UploadFile
 from pydantic import BaseModel
 
@@ -47,6 +47,15 @@ class CollectionParam(BaseModel):
         }
 
 
+class Filter(Dict):
+    exclude: List[str]
+    include: Optional[List[str]]
+
+
+class FiltersParam(BaseModel):
+    filters: Optional[Dict] = Body(default={})
+
+
 class PostQueryParams(CollectionParam, SearchParam):
     class Config:
         schema_extra = {
@@ -72,7 +81,7 @@ class PostQueryParams(CollectionParam, SearchParam):
         }
 
 
-class PostNeighboursParams(CollectionParam, IdQuery):
+class PostNeighboursParams(CollectionParam, FiltersParam, IdQuery):
     class Config:
         schema_extra = {
             "example": {

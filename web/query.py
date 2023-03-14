@@ -1,3 +1,4 @@
+from typing import Dict
 from langchain.vectorstores import FAISS
 
 from .config import get_embedding_fn, db_dir
@@ -21,7 +22,7 @@ def query_by_id(id: str, collection, num: int = 5):
 
 
 
-def query_n_with_fallback(id: str, collection, num: int = 5, limit: int = 5, depth: int = 3):
+def query_n_with_fallback(id: str, collection, num: int = 5, limit: int = 5, depth: int = 3, filters: Dict = {}):
     try:
         results = query_by_id(id, collection, limit)
     except KeyError:
@@ -30,13 +31,46 @@ def query_n_with_fallback(id: str, collection, num: int = 5, limit: int = 5, dep
     # filter out current document
     results = [result for result in results if result[0].metadata["id"] != id]
 
+    # filter out inclusions and exclusions
+    results = apply_filter(results, filters)
+
     # try to fetch more, recursively
     count = count_unique_pre_results(results)
     if count < num and depth > 0:
         print("Required " + str(num) + " got " + str(count) + " unique")
-        return query_n_with_fallback(id, collection, num, limit + num, depth - 1)
+        return query_n_with_fallback(id, collection, num, limit + num, depth - 1, filters)
 
     return results
+
+
+def apply_filter(results, filters):
+    # empty filter
+    if "include" not in filters and "exclude" not in filters:
+        return results
+
+    inter_results = []
+    for result in results:
+        is_excluded = False
+
+        # 1 - mark as excluded
+        if "exclude" in filters:
+            for filter in filters["exclude"]:
+                if result[0].metadata["id"].startswith(filter):
+                    is_excluded = True
+                    break
+
+        # 2 - check for manual inclusion
+        if is_excluded and "include" in filters:
+            for filter in filters["include"]:
+                if result[0].metadata["id"].startswith(filter):
+                    is_excluded = False
+                    break
+
+        # 3 - keep when not excluded (by default, or when re-included)
+        if not is_excluded:
+            inter_results.append(result)
+
+    return inter_results
 
 def map_result(result):
     doc = result[0]

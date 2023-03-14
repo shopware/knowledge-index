@@ -158,7 +158,8 @@ def post_query(data: PostQueryParams) -> Results:
 @app.post("/neighbours", tags=["neighbours"])
 def post_neighbours(data: PostNeighboursParams) -> Results:
     num = 5
-    results = query_n_with_fallback(data.get_id(), data.collection, num)
+    depth = 3
+    results = query_n_with_fallback(data.get_id(), data.collection, num, num, depth, data.filters)
 
     return {"results": unique_results(map_results(results))[0:num]}
 
