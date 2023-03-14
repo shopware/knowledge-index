@@ -18,7 +18,7 @@ RUN python -c "import nltk; nltk.download('averaged_perceptron_tagger')"
 COPY ./ /code
 
 # add --proxy-headers when running behind proxy
-CMD ["uvicorn", "web.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+CMD ["uvicorn", "web.main:app", "--host", "0.0.0.0", "--port", "80", "--reload", "--limit-concurrency", "10"]
 
 # gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:80
 # uvicorn main:app --host 0.0.0.0 --port 80 --workers 4 --reload
