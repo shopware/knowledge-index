@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Literal
 from fastapi import FastAPI, UploadFile, Query, Form, Body, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,6 +13,7 @@ from .query import query, query_by_id, query_n_with_fallback, map_results, uniqu
 from .ingest import ingest, ingest_diff, ingest_url
 from .cache import prune_cache
 from .storage import get_storage_info
+from .download import get_download
 from .status import get_status
 from .config import data_dir
 from .exception import EmptyEmbeddings
@@ -67,6 +68,7 @@ An id is the relative file name of the .md file - for example: `src/docs/product
     },
     {"name": "cache", "description": "Delete old cache from the filesystem"},
     {"name": "storage", "description": "Get storage usage"},
+    {"name": "download", "description": "Download <db> or <docs> dir for <collection>"},
     {"name": "healthcheck", "description": "Healthcheck endpoint"},
 ]
 
@@ -180,6 +182,15 @@ def delete_cache(token: str = Depends(require_api_key)) -> Success:
 @app.get("/storage", tags=["storage"])
 def get_storage(token: str = Depends(require_api_key)):
     return get_storage_info()
+
+
+@app.get("/download/{type}/{collection}", tags=["download"])
+def get_storage(
+        type: Literal["db", "docs"],
+        collection: str,
+        token: str = Depends(require_api_key)
+):
+    return get_download(type, collection)
 
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio
