@@ -1,0 +1,16 @@
+# .github, .platform, .pytest_cache, ...
+.*
+
+# Dockerfile-*, docker-compose.yml
+docker*
+Docker*
+!docker/
+
+# nix, lock
+devenv*
+
+app
+
+fly.toml
+requirements.txt
+vercel.json
