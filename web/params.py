@@ -30,7 +30,7 @@ class CollectionParam(BaseModel):
 #        min_length=3,
         max_length=128,
 #        regex="^(|[a-z0-9_]{3,40}|[a-z0-9_]{1,40}--[a-z0-9_]{1,40}|[a-z0-9_]{3,40}--[a-z0-9_]{1,40}--[a-z0-9_]{1,40})$",
-        regex="^(|[a-z0-9_\-]{3,40})$",
+        regex="^(|[a-z0-9_\-]{3,128})$",
         example={"collection": "test"},
     )
     collections: List[str] = Body(
