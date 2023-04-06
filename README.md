@@ -52,7 +52,7 @@ $ docker run -dit \
  -v "$PWD:/code" \
  -v "$PWD/data:/data/docs" \
  -v "$PWD/db:/data/db" \
- -v "$PWD:/cache:/data/cache" \
+ -v "$PWD/cache:/data/cache" \
  ai-ml-web:latest
 ```
 
