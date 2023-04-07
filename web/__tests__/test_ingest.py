@@ -95,7 +95,8 @@ date: 2022-21-11
 
     doc = create_doc(content)
 
-    with pytest.raises(Exception):
+    with pytest.raises(Exception) as exc_info:
         response = get_frontmatter_info(doc, "date")
 
+    assert str(exc_info.value) == 'month must be in 1..12'
     #assert response == "2022-21-11"
