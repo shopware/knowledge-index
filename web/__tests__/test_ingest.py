@@ -1,5 +1,7 @@
-from ..ingest import get_topmost_heading, get_doc_heading, get_doc_description, get_file_name, split_docs, add_metadata_to_docs
+from ..ingest import get_topmost_heading, get_doc_heading, get_doc_description, get_file_name, split_docs, add_metadata_to_docs, get_frontmatter_info
 from .helper import create_doc
+from datetime import datetime, date
+import pytest
 import random
 import string
 
@@ -62,3 +64,38 @@ def test_add_metadata_to_docs():
 
     assert docs[0].metadata["id"] == 'some/source.md'
     assert docs[1].metadata["id"] == "another/source.md"
+
+
+def test_correct_datetime_frontmatter():
+    content = """---
+title: Replace drop-shadow with box-shadow
+date: 2022-11-21
+
+---
+
+# Replace drop-shadow with box-shadow
+    """
+
+    doc = create_doc(content)
+
+    response = get_frontmatter_info(doc, "date")
+
+    assert isinstance(response, date)
+
+
+def test_incorrect_datetime_frontmatter():
+    content = """---
+title: Replace drop-shadow with box-shadow
+date: 2022-21-11
+
+---
+
+# Replace drop-shadow with box-shadow
+    """
+
+    doc = create_doc(content)
+
+    with pytest.raises(Exception):
+        response = get_frontmatter_info(doc, "date")
+
+    #assert response == "2022-21-11"
