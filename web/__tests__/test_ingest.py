@@ -28,7 +28,6 @@ title: frontmatter Heading
 description: frontmatter Description
 ---
 # heading""")
-
     heading = get_doc_heading(document)
     description = get_doc_description(document)
     assert heading == 'frontmatter Heading'
