@@ -15,8 +15,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build, deploy and test
-        timeout-minutes: 15
+      - name: Build and test
+        timeout-minutes: 10
         run: |
           echo ${{ github.sha }} > commit.txt
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
@@ -24,4 +24,8 @@ jobs:
           docker stack deploy ai-ml -c docker-compose.yml --prune
           until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a -q --filter ancestor=ai-ml-web --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
-          flyctl deploy --local-only -i ai-ml-web:latest
+      
+      - name: Deploy to fly.io
+        timeout-minutes: 10
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: flyctl deploy --local-only -i ai-ml-web:latest
