@@ -28,6 +28,7 @@ title: frontmatter Heading
 description: frontmatter Description
 ---
 # heading""")
+
     heading = get_doc_heading(document)
     description = get_doc_description(document)
     assert heading == 'frontmatter Heading'
@@ -95,8 +96,15 @@ date: 2022-21-11
 
     doc = create_doc(content)
 
-    with pytest.raises(Exception) as exc_info:
-        response = get_frontmatter_info(doc, "date")
+    # catch "soft fail"
+    response = get_frontmatter_info(doc, "date")
+    assert None == response
 
-    assert str(exc_info.value) == 'month must be in 1..12'
-    #assert response == "2022-21-11"
+    # fails when frontmatter.parse or yaml.load is used
+    #with pytest.raises(Exception) as exc_info:
+    #    response = get_frontmatter_info(doc, "date")
+    # assert str(exc_info.value) == 'month must be in 1..12'
+    
+    # works (not) with custom frontmatter_parse implementation
+    # response = get_frontmatter_info(doc, "date")
+    # assert response == "2022-21-11"

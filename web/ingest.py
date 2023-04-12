@@ -6,6 +6,7 @@ from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 
 import frontmatter
+import yaml
 
 from filecmp import dircmp
 import os
@@ -18,9 +19,27 @@ from .config import data_dir, db_dir
 from .vector_store import FaissMap
 from .scraper import get_link_tree, filter_working_urls
 
+# custom implementation of frontmatter.parse
+def frontmatter_parse(content: str):
+    if (not content.startswith('---')):
+        return None
+    
+    split = content.split('---')
+    if (len(split) < 2):
+        return None
+
+    parsed = yaml.safe_load_all(split[1])
+
+    return parsed
 
 def get_frontmatter_info(doc, key: str):
-    metadata, content = frontmatter.parse(doc.page_content)
+    try:
+        #metadata = frontmatter_parse(doc.page_content)
+        metadata, content = frontmatter.parse(doc.page_content)
+        print(metadata)
+    except:
+        # soft fail
+        return None
 
     if not metadata:
         return None
