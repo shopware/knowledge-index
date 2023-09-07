@@ -8,16 +8,15 @@ from web.vector_store import FaissMap
 from langchain.chains import LLMChain
 
 
-def text_gen(question: str, collection=None):
+def generate_answer(question: str, collection=None):
     search_index = FaissMap.load_local(db_dir(collection), get_embedding_fn())
 
     prompt_template = """Use the context below to provide a detailed answer for the question below:
     Context: {context}
-    Question: {question}
     Answer:"""
 
     PROMPT = PromptTemplate(
-        template=prompt_template, input_variables=["context", "question"]
+        template=prompt_template, input_variables=["context"]
     )
 
     llm = OpenAI(temperature=0.1, max_tokens=512)

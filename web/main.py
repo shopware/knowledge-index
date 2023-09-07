@@ -7,6 +7,7 @@ import aiofiles
 import os
 import glob
 import shutil
+import typer
 
 from .upload import upload
 from .query import query, query_by_id, query_n_with_fallback, map_results, unique_results
@@ -24,7 +25,9 @@ from .params import (
     PostQueryParams,
     PostNeighboursParams,
     PostURLIngestParams,
+    QuestionParams,
 )
+from .answering import generate_answer
 from .results import Results, Result, Success, SuccessWithMetadatas, Hello, Status
 
 import logging
@@ -69,6 +72,7 @@ An id is the relative file name of the .md file - for example: `src/docs/product
     {"name": "cache", "description": "Delete old cache from the filesystem"},
     {"name": "storage", "description": "Get storage usage"},
     {"name": "download", "description": "Download <db> or <docs> dir for <collection>"},
+    {"name": "question", "description": "Q&A endpoint"},
     {"name": "healthcheck", "description": "Healthcheck endpoint"},
 ]
 
@@ -191,6 +195,13 @@ def get_storage(
         token: str = Depends(require_api_key)
 ):
     return get_download(type, collection)
+
+
+@app.post("/question", tags=["question"])
+def post_question(
+    data: QuestionParams,
+):
+    return generate_answer(data.q)
 
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio
