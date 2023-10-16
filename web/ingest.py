@@ -134,7 +134,7 @@ def ingest(collection) -> FaissMap:
     docs = loader.load()
 
     # Remove documents that are too short
-    docs = [doc for doc in docs if len(doc.page_content) > 500]
+    # docs = [doc for doc in docs if len(doc.page_content) > 500]
 
     # add heading and id metadata
     add_metadata_to_docs(docs, current_dir)

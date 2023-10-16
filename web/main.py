@@ -125,13 +125,13 @@ def post_ingest(
         db = ingest(collection.collection)
     except EmptyEmbeddings:
         return {
-            "success": True,
-            "metadatas": []
+            "success": False,
+            "metadatas": [],
         }
 
     return {
         "success": True,
-        "metadatas": db.stats["metadatas"]
+        "metadatas": db.stats["metadatas"],
     }
 
 
