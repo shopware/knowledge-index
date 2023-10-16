@@ -22,6 +22,7 @@ jobs:
           docker build -t ai-ml-web:latest -f ./Dockerfile-web .
           docker swarm init
           docker stack deploy ai-ml -c docker-compose.yml --prune
+          sleep 15
           until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a --filter ancestor=ai-ml-web --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
       
