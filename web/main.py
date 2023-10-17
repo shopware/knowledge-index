@@ -1,6 +1,9 @@
 from typing import Union, Literal
-from fastapi import FastAPI, UploadFile, Query, Form, Body, Depends
+from fastapi import FastAPI, UploadFile, Query, Form, Body, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
 
 import zipfile
 import aiofiles
@@ -200,3 +203,37 @@ def get_storage(
 @app.get("/healthcheck", tags=["healthcheck"])
 def healthcheck() -> Status:
     return get_status()
+
+# Mount the static files directory
+# app.mount("/static", StaticFiles(directory="tmp-data", follow_symlink=True), name="static")
+# /list/docs/
+# /static/docs/src/test.md
+# /download/docs/src/test.md
+static_path = Path("/data")
+app.mount("/static", StaticFiles(directory="/data", follow_symlink=True), name="static")
+
+# Enable directory listing
+@app.get("/list/{subpath:path}", include_in_schema=False)
+async def list_directory(subpath: str = ""):
+    try:
+        full_path = Path(static_path / subpath)
+
+        # Get a list of all files in the directory
+        file_list = [str(file.name) for file in full_path.iterdir() if file.is_file()]
+        dir_list = [str(file.name) for file in full_path.iterdir() if file.is_dir()]
+
+        return {"files": file_list, "dirs": dir_list}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Custom route to force download
+@app.get("/download/{filename:path}")
+async def download_file(filename: str):
+    file_path = static_path / filename
+
+    if not file_path.is_file():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Use FileResponse with additional headers for forcing download
+    headers = {"Content-Disposition": f"attachment; filename={filename}"}
+    return FileResponse(file_path, headers=headers)
