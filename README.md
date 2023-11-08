@@ -195,6 +195,17 @@ $ curl \
  https://ai-ml.fly.dev/neighbours
 ```
 
+## Ask
+
+Ask AI engine to generate an answer to the question.
+
+```bash
+$ curl \
+ -X POST \
+ --data '{"q":"What is Shopware?"}' \
+ https://ai-ml.fly.dev/question
+```
+
 # Notes
 
 Notes:

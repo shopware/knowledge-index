@@ -100,5 +100,9 @@ class PostNeighboursParams(CollectionParam, FiltersParam, IdQuery):
         }
 
 
+class QuestionParams(BaseModel):
+    q: str
+
+
 class PostURLIngestParams(CollectionParam, URLParam):
     pass
