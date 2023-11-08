@@ -11,7 +11,9 @@ from langchain.chains import LLMChain
 def generate_answer(question: str, collection=None):
     search_index = FaissMap.load_local(db_dir(collection), get_embedding_fn())
 
-    prompt_template = """Use the context below to provide a detailed answer for the question below:
+    prompt_template = """Use the context below to provide a detailed answer for the question below.
+    If you don't know the answer, just say that you don't know, don't try to make up an answer.
+    Transform the answer to the markdown format.
     Context: {context}
     Answer:"""
 
@@ -23,7 +25,10 @@ def generate_answer(question: str, collection=None):
 
     # chain = LLMChain(llm=llm, prompt=PROMPT)
     chain = RetrievalQAWithSourcesChain.from_chain_type(
-        llm, chain_type="map_reduce", vectorstore=search_index
+        llm,
+        chain_type="map_reduce",
+        retriever=search_index.as_retriever(),
+        #chain_type_kwargs = {"prompt": PROMPT}
     )
 
     # docs = search_index.similarity_search(question, k=4)
