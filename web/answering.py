@@ -1,6 +1,6 @@
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
-from langchain.chains import VectorDBQAWithSourcesChain
+from langchain.chains import RetrievalQAWithSourcesChain
 
 from web.config import get_embedding_fn, db_dir
 from web.vector_store import FaissMap
@@ -22,7 +22,7 @@ def generate_answer(question: str, collection=None):
     llm = OpenAI(temperature=0.1, max_tokens=512)
 
     # chain = LLMChain(llm=llm, prompt=PROMPT)
-    chain = VectorDBQAWithSourcesChain.from_chain_type(
+    chain = RetrievalQAWithSourcesChain.from_chain_type(
         llm, chain_type="map_reduce", vectorstore=search_index
     )
 
