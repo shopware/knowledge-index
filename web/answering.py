@@ -1,4 +1,4 @@
-from web.config import get_embedding_fn, db_dir, sqlite_dir
+from web.config import get_embedding_fn, db_dir, data_dir, sqlite_dir
 from web.vector_store import FaissMap
 
 from langchain.llms import OpenAI
@@ -25,7 +25,10 @@ async def generate_answer(question: str, collection):
     model_name = "gpt-3.5-turbo"
     # model_name = "gpt-4"
 
-    search_index = FaissMap.load_local(db_dir(collection), get_embedding_fn())
+    my_db_dir = db_dir(collection)
+    my_data_dir = data_dir(collection)
+
+    search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
     llm = OpenAI(
         temperature=0.0,
         max_tokens=512,
@@ -51,13 +54,13 @@ async def generate_answer(question: str, collection):
             mode = 'noprompt'
             instance = factory.create(mode, search_index, llm)
 
-            output = instance.reformat(instance.run(question))
+            output = instance.reformat(instance.run(question), my_data_dir)
         else:
             results = {}
             for mode in factory.getMapper():
                 instance = factory.create(mode, search_index, llm)
 
-                results[mode] = instance.reformat(instance.run(question))
+                results[mode] = instance.reformat(instance.run(question), my_data_dir)
 
             output = results
 
@@ -94,13 +97,16 @@ class AnsweringInterface:
             'sources': split[1],
         }
 
-    def reformat(self, output):
+    def reformat(self, output, my_data_dir):
         if 'sources' not in output:
             output['sources'] = []
         elif output['sources'] == 'None.':
             output['sources'] = []
         else:
             output['sources'] = output['sources'].split(', ')
+
+        # normalize sources
+        output['sources'] = [s[len(my_data_dir):] for s in output['sources']]
 
         return output
 
