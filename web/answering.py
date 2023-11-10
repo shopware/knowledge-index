@@ -20,7 +20,7 @@ from .tracking import send_ga4_event, send_event
 import os
 from pathlib import Path
 
-async def generate_answer(question: str, collection=None):
+async def generate_answer(question: str, collection):
     # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
     model_name = "gpt-3.5-turbo"
     # model_name = "gpt-4"
@@ -62,7 +62,7 @@ async def generate_answer(question: str, collection=None):
             output = results
 
         # track event
-        await send_event('all', 'qa', {**{"question": question}, **cb.__dict__})
+        await send_event('all', 'qa', {**{"question": question, "collection": collection}, **cb.__dict__})
 
         output['stats'] = cb
     

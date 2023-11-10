@@ -100,7 +100,7 @@ class PostNeighboursParams(CollectionParam, FiltersParam, IdQuery):
         }
 
 
-class QuestionParams(BaseModel):
+class QuestionParams(CollectionParam):
     q: str
 
 

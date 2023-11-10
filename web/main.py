@@ -201,10 +201,8 @@ def get_storage(
 
 
 @app.post("/question", tags=["question"])
-async def post_question(
-    data: QuestionParams,
-):
-    return await generate_answer(data.q)
+async def post_question(data: QuestionParams):
+    return await generate_answer(data.q, data.collection)
 
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio
