@@ -15,7 +15,7 @@ from langchain.cache import SQLiteCache
 from langchain.globals import set_llm_cache
 from langchain import hub
 
-from .tracking import send_ga4_event, send_event
+from .tracking import send_event
 
 import os
 from pathlib import Path
