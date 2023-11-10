@@ -1,4 +1,4 @@
-from web.config import get_embedding_fn, db_dir
+from web.config import get_embedding_fn, db_dir, sqlite_dir
 from web.vector_store import FaissMap
 
 from langchain.llms import OpenAI
@@ -17,15 +17,10 @@ from langchain import hub
 
 from .tracking import send_ga4_event, send_event
 
+import os
+from pathlib import Path
+
 async def generate_answer(question: str, collection=None):
-
-    #event_category = 'ExampleCategory'
-    #event_action = 'ExampleAction'
-    #await send_ga4_event(event_category, event_action)
-
-    #return {"response": "Sent to GA"}
-    #
-
     # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
     model_name = "gpt-3.5-turbo"
     # model_name = "gpt-4"
@@ -45,11 +40,15 @@ async def generate_answer(question: str, collection=None):
     cb = get_openai_callback()
 
     # https://python.langchain.com/docs/integrations/llms/llm_caching
-    set_llm_cache(SQLiteCache(database_path=".langchain.db"))
+    # create cache dir
+    my_sqlite_dir = sqlite_dir(collection)
+    if not os.path.isdir(my_sqlite_dir):
+        Path(my_sqlite_dir).mkdir(exist_ok=True, parents=True)
+    set_llm_cache(SQLiteCache(database_path=Path(my_sqlite_dir) / ".langchain.db"))
 
     with get_openai_callback() as cb:
         if True:
-            mode = 'chatbot'
+            mode = 'noprompt'
             instance = factory.create(mode, search_index, llm)
 
             output = instance.reformat(instance.run(question))
