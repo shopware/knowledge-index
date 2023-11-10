@@ -29,3 +29,4 @@ services:
       - ./data:/data/docs
       - ./db:/data/db
       - ./cache:/data/cache
+      - ./sqlite:/data/sqlite

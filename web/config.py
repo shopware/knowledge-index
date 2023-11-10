@@ -46,6 +46,12 @@ def cache_dir():
     return os.environ.get(conf["env"], conf["dir"])
 
 
+def sqlite_dir(collection: str = None):
+    conf = env_dir("SQLITE_DIR", prefix("data/sqlite"), collection)
+
+    return os.environ.get(conf["env"], conf["dir"])
+
+
 # not used yet
 class Settings(BaseSettings):
     # api keys
@@ -56,6 +62,7 @@ class Settings(BaseSettings):
     data_dir: str = '/data/docs'
     db_dir: str = '/data/db'
     cache_dir: str = '/data/cache'
+    sqlite_dir: str = '/data/sqlite'
 
 
 settings = Settings()
