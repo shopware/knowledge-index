@@ -22,6 +22,7 @@ services:
     environment:
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
       KNOWLEDGE_API_KEY: "${KNOWLEDGE_API_KEY}"
+      POSTHOG_PROJECT_API_KEY: "${POSTHOG_PROJECT_API_KEY}"
     ports:
       - 10002:80
     volumes:
