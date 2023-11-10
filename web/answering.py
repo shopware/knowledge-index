@@ -10,12 +10,14 @@ from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
+from langchain.callbacks import get_openai_callback
+from langchain.cache import SQLiteCache
+from langchain.globals import set_llm_cache
 from langchain import hub
 
 from .tracking import send_ga4_event, send_event
 
 async def generate_answer(question: str, collection=None):
-    #await send_event('all', 'qa', {"question": question})
 
     #event_category = 'ExampleCategory'
     #event_action = 'ExampleAction'
@@ -30,28 +32,42 @@ async def generate_answer(question: str, collection=None):
 
     search_index = FaissMap.load_local(db_dir(collection), get_embedding_fn())
     llm = OpenAI(
-        temperature=0.1,
+        temperature=0.0,
         max_tokens=512,
         #model_name=model_name,
         batch_size=5
     )
     
     factory = AnsweringFactory()
+    output = None
 
-    if True:
-        mode = 'chatbot'
-        instance = factory.create(mode, search_index, llm)
+    # https://python.langchain.com/docs/modules/model_io/llms/token_usage_tracking
+    cb = get_openai_callback()
 
-        # answer, sources
-        return instance.reformat(instance.run(question))
+    # https://python.langchain.com/docs/integrations/llms/llm_caching
+    set_llm_cache(SQLiteCache(database_path=".langchain.db"))
 
-    results = {}
-    for mode in factory.getMapper():
-        instance = factory.create(mode, search_index, llm)
+    with get_openai_callback() as cb:
+        if True:
+            mode = 'chatbot'
+            instance = factory.create(mode, search_index, llm)
 
-        results[mode] = instance.reformat(instance.run(question))
+            output = instance.reformat(instance.run(question))
+        else:
+            results = {}
+            for mode in factory.getMapper():
+                instance = factory.create(mode, search_index, llm)
 
-    return results
+                results[mode] = instance.reformat(instance.run(question))
+
+            output = results
+
+        # track event
+        await send_event('all', 'qa', {**{"question": question}, **cb.__dict__})
+
+        output['stats'] = cb
+    
+    return output
 
 
 class AnsweringInterface:
