@@ -1,5 +1,6 @@
 import httpx
 from posthog import Posthog
+import os
 
 async def send_event(user, event, data = {}):
     if "POSTHOG_PROJECT_API_KEY" not in os.environ:
