@@ -97,15 +97,23 @@ class AnsweringInterface:
             'sources': split[1],
         }
 
+    def mapSourcesFromDocuments(self, documents):
+        sources = []
+        for document in documents:
+            sources.append(document.metadata["source"])
+
+        return sources
+
     def reformat(self, output, my_data_dir):
         if 'sources' not in output:
             output['sources'] = []
         elif output['sources'] == 'None.':
             output['sources'] = []
-        else:
+        elif type(output['sources']) != list:
             output['sources'] = output['sources'].split(', ')
 
         # normalize sources
+        #if type(output['sources']) != list:
         output['sources'] = [s[len(my_data_dir):] for s in output['sources']]
 
         return output
@@ -173,13 +181,15 @@ class StuffedPrompt(AnsweringInterface):
             self.llm,
             chain_type="stuff",
             retriever=self.getRetriever(),
-            chain_type_kwargs = {"prompt": PROMPT}
+            chain_type_kwargs = {"prompt": PROMPT},
+            return_source_documents=True
         )
 
         result = chain(question, return_only_outputs=True);
 
         return {
             'answer': result['result'],
+            'sources': self.mapSourcesFromDocuments(result["source_documents"]),
         }
 
 
@@ -201,6 +211,7 @@ class RagChain(AnsweringInterface):
 
         return {
             'answer': rag_chain.invoke(question),
+            'sources': self.mapSourcesFromDocuments(self.getDocuments(question))
         }
 
 class MapReduce(AnsweringInterface):
@@ -213,6 +224,7 @@ class MapReduce(AnsweringInterface):
 
         return {
             'answer': result['output_text'],
+            'sources': self.mapSourcesFromDocuments(docs),
         }
 
 class Italian(AnsweringInterface):
@@ -244,6 +256,7 @@ class Italian(AnsweringInterface):
 
         return {
             'answer': result['output_text'],
+            'sources': self.mapSourcesFromDocuments(docs),
         }
 
 class ReducedPrompt(AnsweringInterface):
@@ -275,6 +288,7 @@ class ReducedPrompt(AnsweringInterface):
 
         return {
             'answer': result['output_text'],
+            'sources': self.mapSourcesFromDocuments(docs),
         }
 
 class TestChat(AnsweringInterface):
@@ -291,7 +305,7 @@ class TestChat(AnsweringInterface):
         question_prompt_template = PromptTemplate.from_template(template=question_template)
 
         # create retriever chain
-        qa_chain = RetrievalQA.from_chain_type(
+        qa_chain = RetrievalQAWithSourcesChain.from_chain_type(
             llm=self.llm,
             # mmr > for diversity in documents
             # Set fetch_k value to get the fetch_k most similar search. This is basically semantic search
@@ -312,6 +326,7 @@ class AnotherTestChat(AnsweringInterface):
 
         return {
             'answer': qa.run(question),
+            'sources': self.mapSourcesFromDocuments(self.getDocuments(question)),
         }
 
 class Chatbot(AnsweringInterface):
@@ -336,9 +351,13 @@ class Chatbot(AnsweringInterface):
             retriever=self.getRetriever(),
             question_generator=question_generator,
             combine_docs_chain=doc_chain,
+            return_source_documents=True
         )
 
         chat_history = []
         result = chatbot({"question": question, "chat_history": chat_history})
 
-        return self.splitAnswerAndSources(result['answer'])
+        return {
+            "answer": self.splitAnswerAndSources(result['answer'])["answer"],
+            "sources": self.mapSourcesFromDocuments(result["source_documents"]),
+        }
