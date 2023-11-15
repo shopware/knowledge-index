@@ -33,6 +33,8 @@ from .params import (
 from .answering import generate_answer
 from .results import Results, Result, Success, SuccessWithMetadatas, Hello, Status
 
+from .utils import safe_dir
+
 import logging
 
 description = """
@@ -238,7 +240,7 @@ async def list_directory(subpath: str = ""):
 # Custom route to force download
 @app.get("/download/{filename:path}")
 async def download_file(filename: str):
-    file_path = static_path / filename
+    file_path = safe_dir(static_path, filename)
 
     if not file_path.is_file():
         raise HTTPException(status_code=404, detail="File not found")

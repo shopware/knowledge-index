@@ -19,6 +19,8 @@ from .config import data_dir, db_dir
 from .vector_store import FaissMap
 from .scraper import get_link_tree, filter_working_urls
 
+from .utils import safe_dir
+
 # custom implementation of frontmatter.parse
 def frontmatter_parse(content: str):
     if (not content.startswith('---')):
@@ -211,20 +213,20 @@ def ingest_diff(collection):
 def get_diff_files(dcmp, diff):
     # collect updated files
     for name in dcmp.diff_files:
-        fullname = os.path.join(dcmp.left, name)
+        fullname = safe_dir(dcmp.left, name)
         diff["updated"].append(
             {
                 "name": fullname,
                 "old": hashlib.md5(open(fullname, "rb").read()).hexdigest(),
                 "new": hashlib.md5(
-                    open(os.path.join(dcmp.right, name), "rb").read()
+                    open(safe_dir(dcmp.right, name), "rb").read()
                 ).hexdigest(),
             }
         )
 
     # collect deleted files
     for name in dcmp.left_only:
-        fullname = os.path.join(dcmp.left, name)
+        fullname = safe_dir(dcmp.left, name)
         diff["deleted"].append(
             {
                 "name": fullname,
@@ -235,7 +237,7 @@ def get_diff_files(dcmp, diff):
 
     # collect added files
     for name in dcmp.right_only:
-        fullname = os.path.join(dcmp.right, name)  # read from new dir
+        fullname = safe_dir(dcmp.right, name) # read from new dir
         diff["added"].append(
             {
                 "name": fullname,
