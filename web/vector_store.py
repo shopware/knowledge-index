@@ -18,6 +18,8 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from .tracking import send_event
 import asyncio
 
+from .utils import safe_dir
+
 class FaissMap(VectorStore):
     def __init__(
         self,
@@ -131,20 +133,19 @@ class FaissMap(VectorStore):
         path.mkdir(exist_ok=True, parents=True)
 
         # save index separately since it is not picklable
-        faiss.write_index(self.index, str(path / "index.faiss"))
+        faiss.write_index(self.index, index_faiss)
 
         # save docstore and index_to_docstore_id
-        with open(path / "index.pkl", "wb") as f:
+        with open(index_pkl, "wb") as f:
             pickle.dump((self.docstore, self.index_to_docstore_id), f)
 
     @classmethod
     def load_local(cls, folder_path: str, embeddings: Embeddings) -> Any:
-        path = Path(folder_path)
         # load index separately since it is not picklable
-        index = faiss.read_index(str(path / "index.faiss"))
+        index = faiss.read_index(safe_dir(folder_path, "index.faiss"))
 
         # load docstore and index_to_docstore_id
-        with open(path / "index.pkl", "rb") as f:
+        with open(safe_dir(folder_path, "index.pkl"), "rb") as f:
             docstore, index_to_docstore_id = pickle.load(f)
         return cls(embeddings.embed_query, index, docstore, index_to_docstore_id)
 

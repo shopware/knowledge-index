@@ -1,6 +1,7 @@
 import os
 from typing import Union
 from pydantic import BaseSettings
+from .utils import safe_dir_append
 
 
 def prefix(path: str) -> str:
@@ -22,8 +23,8 @@ def get_embedding_fn():
 
 def env_dir(env, dir, collection: str = None):
     if collection:
-        env += "_" + collection.upper()
-        dir += "-" + collection
+        env = safe_dir_append(env, "_" + collection.upper())
+        dir = safe_dir_append(dir, "-" + collection)
 
     return {"env": env, "dir": dir}
 
