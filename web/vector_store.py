@@ -13,6 +13,10 @@ from langchain.embeddings.base import Embeddings
 from .cache import get_cache, set_cache
 from .exception import EmptyEmbeddings
 
+from langchain.callbacks import get_openai_callback
+from langchain.embeddings.openai import OpenAIEmbeddings
+from .tracking import send_event
+import asyncio
 
 class FaissMap(VectorStore):
     def __init__(
@@ -109,7 +113,18 @@ class FaissMap(VectorStore):
         docstore = {doc.metadata["id"]: doc for doc in documents}
 
         index_to_id = {i: doc.metadata["id"] for i, doc in enumerate(documents)}
-        return cls(embedding.embed_query, index, docstore, index_to_id, summary["new"])
+
+        cb = None
+        if (type(embedding) == OpenAIEmbeddings):
+            cb = get_openai_callback()
+
+        response = cls(embedding.embed_query, index, docstore, index_to_id, summary["new"])
+
+        if (cb != None):
+            asyncio.run(send_event('all', 'from_texts', cb))
+            print("Tracked")
+
+        return response
 
     def save_local(self, folder_path: str) -> None:
         path = Path(folder_path)
