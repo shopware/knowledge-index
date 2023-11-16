@@ -1,4 +1,3 @@
-from typing import List
 from ..query import map_result, unique_results
 from .helper import create_doc
 

@@ -1,5 +1,4 @@
 from typing import Dict
-from langchain.vectorstores import FAISS
 
 from .config import get_embedding_fn, db_dir
 from .vector_store import FaissMap

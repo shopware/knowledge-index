@@ -8,12 +8,9 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
 from langchain.schema.runnable import RunnablePassthrough
-from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
 from langchain.callbacks import get_openai_callback
 from langchain.cache import SQLiteCache
 from langchain.globals import set_llm_cache
-from langchain import hub
 
 from .tracking import send_event
 

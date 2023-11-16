@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
-import os
 
 from langchain.vectorstores.base import VectorStore
 from langchain.docstore.document import Document

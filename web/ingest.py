@@ -1,8 +1,6 @@
 from langchain.document_loaders import DirectoryLoader, UnstructuredURLLoader
 from langchain.document_loaders import TextLoader
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 
 import frontmatter
@@ -11,7 +9,6 @@ import yaml
 from filecmp import dircmp
 import os
 import shutil
-import json
 import hashlib
 
 from .config import get_embedding_fn

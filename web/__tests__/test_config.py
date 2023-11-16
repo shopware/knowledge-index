@@ -1,4 +1,4 @@
-from ..config import data_dir, db_dir, cache_dir, env_dir, prefix, get_embedding_fn
+from ..config import data_dir, db_dir, cache_dir
 import os
 
 

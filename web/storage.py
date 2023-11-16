@@ -1,4 +1,3 @@
-import os
 import subprocess
 from .config import data_dir, cache_dir, db_dir
 from glob import glob

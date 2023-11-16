@@ -1,9 +1,6 @@
-from ..ingest import get_topmost_heading, get_doc_heading, get_doc_description, get_file_name, split_docs, add_metadata_to_docs, get_frontmatter_info
+from ..ingest import get_topmost_heading, get_doc_heading, get_doc_description, get_file_name, add_metadata_to_docs, get_frontmatter_info
 from .helper import create_doc
-from datetime import datetime, date
-import pytest
-import random
-import string
+from datetime import date
 
 
 def test_get_topmost_heading_empty():
