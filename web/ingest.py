@@ -169,17 +169,17 @@ def ingest_diff(collection):
     ingested_dir = current_dir + "_ingested"
 
     if not os.path.isdir(current_dir):
-        print(f"Nothing to ingest.")
+        print("Nothing to ingest.")
         # nothing to ingest
         return False
 
     if not os.path.isdir(ingested_dir):
-        print(f"Full ingestion.")
+        print("Full ingestion.")
         # not ingested yet, full ingestion
         return ingest(collection)
 
     comparison = dircmp(ingested_dir, current_dir)
-    print(f"Comparing directories.")
+    print("Comparing directories.")
 
     diff = get_diff_files(comparison, {"deleted": [], "added": [], "updated": []})
 
