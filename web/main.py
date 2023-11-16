@@ -136,7 +136,7 @@ def post_ingest(
 
 
 @app.post("/ingest-diff", tags=["ingest-diff"])
-def post_ingest(
+def post_ingest_diff(
     collection: CollectionParam = CollectionParam(),
     token: str = Depends(require_api_key),
 ) -> Success:
@@ -185,7 +185,7 @@ def get_storage(token: str = Depends(require_api_key)):
 
 
 @app.get("/download/{type}/{collection}", tags=["download"])
-def get_storage(
+def download_collection(
         type: Literal["db", "docs"],
         collection: str,
         token: str = Depends(require_api_key)

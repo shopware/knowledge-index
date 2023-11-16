@@ -19,7 +19,7 @@ from pathlib import Path
 
 async def generate_answer(question: str, collection):
     # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-    model_name = "gpt-3.5-turbo"
+    # model_name = "gpt-3.5-turbo"
     # model_name = "gpt-4"
 
     my_db_dir = db_dir(collection)
@@ -182,7 +182,7 @@ class StuffedPrompt(AnsweringInterface):
             return_source_documents=True
         )
 
-        result = chain(question, return_only_outputs=True);
+        result = chain(question, return_only_outputs=True)
 
         return {
             'answer': result['result'],
@@ -295,11 +295,11 @@ class TestChat(AnsweringInterface):
         combine_template = "Write a summary of the following text:\n\n{summaries}"
         combine_prompt_template = PromptTemplate.from_template(template=combine_template)
 
-        question_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. Always say "thanks for asking!" at the end of the answer. 
-        {context}
-        Question: {question}
-        Helpful Answer:"""
-        question_prompt_template = PromptTemplate.from_template(template=question_template)
+        #question_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. Always say "thanks for asking!" at the end of the answer. 
+        #{context}
+        #Question: {question}
+        #Helpful Answer:"""
+        #question_prompt_template = PromptTemplate.from_template(template=question_template)
 
         # create retriever chain
         qa_chain = RetrievalQAWithSourcesChain.from_chain_type(
