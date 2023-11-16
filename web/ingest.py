@@ -35,7 +35,7 @@ def get_frontmatter_info(doc, key: str):
     try:
         #metadata = frontmatter_parse(doc.page_content)
         metadata, content = frontmatter.parse(doc.page_content)
-    except:
+    except: # noqa: E722
         # soft fail
         return None
 
