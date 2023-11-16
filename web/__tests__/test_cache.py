@@ -1,4 +1,4 @@
-from ..cache import get_md5, get_cache, set_cache, prune_cache
+from ..cache import get_md5, get_cache, set_cache
 
 
 def test_get_md5():

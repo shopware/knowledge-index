@@ -1,5 +1,5 @@
-from typing import Union, List, Optional, Dict
-from fastapi import Body, UploadFile
+from typing import List, Optional, Dict
+from fastapi import Body
 from pydantic import BaseModel
 
 

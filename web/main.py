@@ -1,29 +1,21 @@
 from typing import Union, Literal
-from fastapi import FastAPI, UploadFile, Query, Form, Body, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 
-import zipfile
-import aiofiles
-import os
-import glob
-import shutil
-import typer
 
 from .upload import upload
-from .query import query, query_by_id, query_n_with_fallback, map_results, unique_results
+from .query import query, query_n_with_fallback, map_results, unique_results
 from .ingest import ingest, ingest_diff, ingest_url
 from .cache import prune_cache
 from .storage import get_storage_info
 from .download import get_download
 from .status import get_status
-from .config import data_dir
 from .exception import EmptyEmbeddings
 from .security import require_api_key
 from .params import (
-    SearchParam,
     CollectionParam,
     PostQueryParams,
     PostNeighboursParams,
@@ -31,11 +23,10 @@ from .params import (
     QuestionParams,
 )
 from .answering import generate_answer
-from .results import Results, Result, Success, SuccessWithMetadatas, Hello, Status
+from .results import Results, Success, SuccessWithMetadatas, Hello, Status
 
 from .utils import safe_dir
 
-import logging
 
 description = """
 Shopware document ingestion and querying API allows you to:
@@ -145,7 +136,7 @@ def post_ingest(
 
 
 @app.post("/ingest-diff", tags=["ingest-diff"])
-def post_ingest(
+def post_ingest_diff(
     collection: CollectionParam = CollectionParam(),
     token: str = Depends(require_api_key),
 ) -> Success:
@@ -194,7 +185,7 @@ def get_storage(token: str = Depends(require_api_key)):
 
 
 @app.get("/download/{type}/{collection}", tags=["download"])
-def get_storage(
+def download_collection(
         type: Literal["db", "docs"],
         collection: str,
         token: str = Depends(require_api_key)

@@ -1,8 +1,6 @@
 from langchain.document_loaders import DirectoryLoader, UnstructuredURLLoader
 from langchain.document_loaders import TextLoader
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 
 import frontmatter
@@ -11,7 +9,6 @@ import yaml
 from filecmp import dircmp
 import os
 import shutil
-import json
 import hashlib
 
 from .config import get_embedding_fn
@@ -38,7 +35,7 @@ def get_frontmatter_info(doc, key: str):
     try:
         #metadata = frontmatter_parse(doc.page_content)
         metadata, content = frontmatter.parse(doc.page_content)
-    except:
+    except: # noqa: E722
         # soft fail
         return None
 
@@ -153,6 +150,7 @@ def ingest(collection) -> FaissMap:
     # mark as ingested
     if os.path.isdir(ingested_dir):
         shutil.rmtree(ingested_dir)
+
     shutil.copytree(current_dir, ingested_dir)
 
     return db
@@ -171,25 +169,21 @@ def ingest_diff(collection):
     ingested_dir = current_dir + "_ingested"
 
     if not os.path.isdir(current_dir):
-        print(f"Nothing to ingest.")
+        print("Nothing to ingest.")
         # nothing to ingest
         return False
 
     if not os.path.isdir(ingested_dir):
-        print(f"Full ingestion.")
+        print("Full ingestion.")
         # not ingested yet, full ingestion
         return ingest(collection)
 
     comparison = dircmp(ingested_dir, current_dir)
-    print(f"Comparing directories.")
+    print("Comparing directories.")
 
     diff = get_diff_files(comparison, {"deleted": [], "added": [], "updated": []})
 
-    # tmp debug
-    json_formatted_str = json.dumps(diff, indent=2)
-    print(json_formatted_str)
-
-    # 1 - create a new index for updated and new files
+    # create a new index for updated and new files
     docs = []
     for file in diff["added"]:
         docs.append(get_doc_from_file(file))

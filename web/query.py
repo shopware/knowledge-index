@@ -1,5 +1,4 @@
 from typing import Dict
-from langchain.vectorstores import FAISS
 
 from .config import get_embedding_fn, db_dir
 from .vector_store import FaissMap
@@ -98,7 +97,7 @@ def map_results(results):
 def count_unique_pre_results(results, key: str = "id"):
     seen = set()
     for result in results:
-        if not result[0].metadata[key] in seen:
+        if result[0].metadata[key] not in seen:
             seen.add(result[0].metadata[key])
 
     return len(seen)

@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
-import os
 
 from langchain.vectorstores.base import VectorStore
 from langchain.docstore.document import Document
@@ -98,7 +97,7 @@ class FaissMap(VectorStore):
         texts = reordered["texts"]
         metadatas = reordered["metadatas"]
         embeddings = reordered["embeddings"]
-
+            
         if len(embeddings) == 0:
             raise EmptyEmbeddings
 
@@ -117,12 +116,12 @@ class FaissMap(VectorStore):
         index_to_id = {i: doc.metadata["id"] for i, doc in enumerate(documents)}
 
         cb = None
-        if (type(embedding) == OpenAIEmbeddings):
+        if (isinstance(embedding, OpenAIEmbeddings)):
             cb = get_openai_callback()
 
         response = cls(embedding.embed_query, index, docstore, index_to_id, summary["new"])
 
-        if (cb != None):
+        if (cb is not None):
             asyncio.run(send_event('all', 'from_texts', {**cb.__dict__}))
             print("Tracked")
 
