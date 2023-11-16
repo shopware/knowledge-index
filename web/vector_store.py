@@ -131,8 +131,8 @@ class FaissMap(VectorStore):
         path = Path(folder_path)
         path.mkdir(exist_ok=True, parents=True)
 
-        index_faiss = safe_dir(path, "index.faiss")
-        index_pkl = safe_dir(path, "index.pkl")
+        index_faiss = safe_dir(folder_path, "index.faiss")
+        index_pkl = safe_dir(folder_path, "index.pkl")
 
         # save index separately since it is not picklable
         faiss.write_index(self.index, index_faiss)
