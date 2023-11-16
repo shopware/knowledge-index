@@ -94,7 +94,7 @@ date: 2022-21-11
 
     # catch "soft fail"
     response = get_frontmatter_info(doc, "date")
-    assert None == response
+    assert response is None
 
     # fails when frontmatter.parse or yaml.load is used
     #with pytest.raises(Exception) as exc_info:

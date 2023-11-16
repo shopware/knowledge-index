@@ -121,7 +121,7 @@ class FaissMap(VectorStore):
 
         response = cls(embedding.embed_query, index, docstore, index_to_id, summary["new"])
 
-        if (cb != None):
+        if (cb is not None):
             asyncio.run(send_event('all', 'from_texts', {**cb.__dict__}))
             print("Tracked")
 
