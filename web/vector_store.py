@@ -116,7 +116,7 @@ class FaissMap(VectorStore):
         index_to_id = {i: doc.metadata["id"] for i, doc in enumerate(documents)}
 
         cb = None
-        if (type(embedding) == OpenAIEmbeddings):
+        if (isinstance(embedding, OpenAIEmbeddings)):
             cb = get_openai_callback()
 
         response = cls(embedding.embed_query, index, docstore, index_to_id, summary["new"])

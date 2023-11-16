@@ -106,7 +106,7 @@ class AnsweringInterface:
             output['sources'] = []
         elif output['sources'] == 'None.':
             output['sources'] = []
-        elif type(output['sources']) != list:
+        elif not isinstance(output['sources'], list):
             output['sources'] = output['sources'].split(', ')
 
         # normalize sources
