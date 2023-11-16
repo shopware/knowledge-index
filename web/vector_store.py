@@ -98,7 +98,7 @@ class FaissMap(VectorStore):
         texts = reordered["texts"]
         metadatas = reordered["metadatas"]
         embeddings = reordered["embeddings"]
-
+            
         if len(embeddings) == 0:
             raise EmptyEmbeddings
 

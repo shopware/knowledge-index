@@ -153,6 +153,7 @@ def ingest(collection) -> FaissMap:
     # mark as ingested
     if os.path.isdir(ingested_dir):
         shutil.rmtree(ingested_dir)
+
     shutil.copytree(current_dir, ingested_dir)
 
     return db
@@ -185,11 +186,7 @@ def ingest_diff(collection):
 
     diff = get_diff_files(comparison, {"deleted": [], "added": [], "updated": []})
 
-    # tmp debug
-    json_formatted_str = json.dumps(diff, indent=2)
-    print(json_formatted_str)
-
-    # 1 - create a new index for updated and new files
+    # create a new index for updated and new files
     docs = []
     for file in diff["added"]:
         docs.append(get_doc_from_file(file))
