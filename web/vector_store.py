@@ -91,10 +91,14 @@ class FaissMap(VectorStore):
                 raise ValueError(f"Could not find document for id {_id}, got {doc}")
             
             # filter out (hardcoded version filter)
-            if isinstance(kwargs, dict):
-                if isinstance(kwargs['filter'], dict):
-                    if kwargs['filter']['version'] != doc.metadata['version']:
-                        continue
+            if (
+                isinstance(kwargs, dict) and
+                isinstance(kwargs.get('filter'), dict) and
+                isinstance(kwargs['filter'].get('version'), str) and
+                isinstance(doc.metadata.get('version'), str) and
+                kwargs['filter'].get('version') != doc.metadata['version']
+            ):
+                continue
             
             docs.append((doc, scores[0][j]))
         return docs
