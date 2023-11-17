@@ -43,40 +43,61 @@ class FaissMap(VectorStore):
     ) -> List[str]:
         return []
 
+    def similarity_search(
+        self,
+        query: str,
+        k: int = 4,
+        **kwargs: Any
+    ) -> List[Document]:
+        docs_and_scores = self.similarity_search_with_score(query, k, **kwargs)
+        return [doc for doc, _ in docs_and_scores]
+
+    def similarity_search_by_vector(
+        self,
+        embedding: List[float],
+        k: int = 4,
+        **kwargs: Any
+    ) -> List[Document]:
+        docs_and_scores = self.similarity_search_with_score_by_vector(embedding, k, **kwargs)
+        return [doc for doc, _ in docs_and_scores]
+
+    def similarity_search_with_score(
+        self,
+        query: str,
+        k: int = 4,
+        **kwargs: Any
+    ) -> List[Tuple[Document, float]]:
+        embedding = self.embedding_function(query)
+        docs = self.similarity_search_with_score_by_vector(embedding, k, **kwargs)
+        return docs
+
     def similarity_search_with_score_by_vector(
-        self, embedding: List[float], k: int = 4
+        self,
+        embedding: List[float],
+        k: int = 4,
+        **kwargs: Any
     ) -> List[Tuple[Document, float]]:
         scores, indices = self.index.search(np.array([embedding], dtype=np.float32), k)
         docs = []
         for j, i in enumerate(indices[0]):
+            # This happens when not enough docs are returned.
             if i == -1:
-                # This happens when not enough docs are returned.
                 continue
+
+            # edge case?
             _id = self.index_to_docstore_id[i]
             doc = self.docstore.get(_id)
             if not isinstance(doc, Document):
                 raise ValueError(f"Could not find document for id {_id}, got {doc}")
+            
+            # filter out (hardcoded version filter)
+            if isinstance(kwargs, dict):
+                if isinstance(kwargs['filter'], dict):
+                    if kwargs['filter']['version'] != doc.metadata['version']:
+                        continue
+            
             docs.append((doc, scores[0][j]))
         return docs
-
-    def similarity_search_with_score(
-        self, query: str, k: int = 4
-    ) -> List[Tuple[Document, float]]:
-        embedding = self.embedding_function(query)
-        docs = self.similarity_search_with_score_by_vector(embedding, k)
-        return docs
-
-    def similarity_search_by_vector(
-        self, embedding: List[float], k: int = 4, **kwargs: Any
-    ) -> List[Document]:
-        docs_and_scores = self.similarity_search_with_score_by_vector(embedding, k)
-        return [doc for doc, _ in docs_and_scores]
-
-    def similarity_search(
-        self, query: str, k: int = 4, **kwargs: Any
-    ) -> List[Document]:
-        docs_and_scores = self.similarity_search_with_score(query, k)
-        return [doc for doc, _ in docs_and_scores]
 
     def similarity_search_by_id(self, id: str, k: int = 4) -> List[Document]:
         index_id = self.docstore[id].metadata["index_id"]
