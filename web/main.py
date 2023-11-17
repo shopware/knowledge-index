@@ -23,6 +23,7 @@ from .params import (
     QuestionParams,
 )
 from .answering import generate_answer
+from .summary import get_collection_summary
 from .results import Results, Success, SuccessWithMetadatas, Hello, Status
 
 from .utils import safe_dir
@@ -172,6 +173,11 @@ def ingest_urls(
     token: str = Depends(require_api_key),
 ) -> Success:
     return {"success": ingest_url(data.url, data.collection)}
+
+
+@app.get("/summary/{collection}", tags=["summary"])
+def get_summary(collection: str):
+    return get_collection_summary(collection)
 
 
 @app.delete("/cache", tags=["cache"])
