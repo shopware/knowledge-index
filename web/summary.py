@@ -2,8 +2,6 @@ from .config import db_dir, get_embedding_fn
 from .vector_store import FaissMap
 
 def get_collection_summary(collection: str):
-    collection = None
-
     my_db_dir = db_dir(collection)
 
     search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
