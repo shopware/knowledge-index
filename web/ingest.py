@@ -5,6 +5,7 @@ from langchain.docstore.document import Document
 
 import frontmatter
 import yaml
+import re
 
 from filecmp import dircmp
 import os
@@ -74,6 +75,17 @@ def get_doc_heading(doc):
 def get_doc_description(doc):
     return get_frontmatter_info(doc, "description")
 
+
+def get_doc_version(doc):
+    pattern = r'/v(\d+\.\d+)/'
+    match = re.search(pattern, doc.metadata['source'])
+    
+    if match:
+        return 'v' + match.group(1)
+
+    return 'latest'
+
+
 def get_file_name(doc):
     return doc.metadata["source"]
 
@@ -95,6 +107,7 @@ def add_metadata_to_docs(docs, current_dir):
         doc.metadata["id"] = os.path.relpath(get_file_name(doc), current_dir)
         doc.metadata["heading"] = get_doc_heading(doc)
         doc.metadata["description"] = get_doc_description(doc)
+        doc.metadata["version"] = get_doc_version(doc)
 
 
 def ingest_url(url, collection):

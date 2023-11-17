@@ -81,7 +81,13 @@ class AnsweringInterface:
         pass
 
     def getRetriever(self):
-        return self.search_index.as_retriever()
+        return self.search_index.as_retriever(
+            search_kwargs={
+                'filter': {
+                    'version': 'latest'
+                },
+            }
+        )
     
     def getDocuments(self, question: str):
         return self.getRetriever().get_relevant_documents(question)
