@@ -83,6 +83,7 @@ class AnsweringInterface:
     def getRetriever(self):
         return self.search_index.as_retriever(
             search_kwargs={
+                'k': 15,
                 'filter': {
                     'version': 'latest'
                 },
