@@ -19,7 +19,7 @@ from pathlib import Path
 
 async def generate_answer(question: str, collection):
     # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-    model_name = "gpt-3.5-turbo"
+    #model_name = "gpt-3.5-turbo"
     #model_name = "gpt-4"
     #model_name = "gpt-3.5-turbo-16k"
 
