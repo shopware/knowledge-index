@@ -48,7 +48,7 @@ async def generate_answer(question: str, collection):
 
     with get_openai_callback() as cb:
         if True:
-            mode = 'noprompt'
+            mode = 'stuffedprompt'
             instance = factory.create(mode, search_index, llm)
 
             output = instance.reformat(instance.run(question), my_data_dir)
@@ -168,8 +168,11 @@ class NoPrompt(AnsweringInterface):
 class StuffedPrompt(AnsweringInterface):
     def run(self, question: str):
         prompt_template = """Use the context below to provide a detailed answer for the question below.
-        If you don't know the answer, just say that you don't know, don't try to make up an answer.
+        Pay special attention to differ between a Shopware 6 App and a Plugin.
         Transform the answer to the markdown format.
+        If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
+        If the question is not about Shopware, politely inform them that you are tuned to only answer questions about Shopware.
+        If the question includes a request for code, provide a code block directly from the documentation.
 
         {context}
         
