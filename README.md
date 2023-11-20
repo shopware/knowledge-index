@@ -208,6 +208,13 @@ $ curl \
  https://ai-ml.fly.dev/question
 ```
 
+## Remote debugging
+
+1. Install Chrome extension ModHeader or similar.
+2. Set `X-Shopware-Api-Key` header
+3. Download remote database (`.faiss` and `.pkl`) to your local computer - https://ai-ml.fly.dev/download/db/{collection}
+4. Extract it to your local `/data/db-{collection}` directory
+
 # Notes
 
 Notes:
