@@ -101,7 +101,8 @@ class FaissMap(VectorStore):
                 continue
             
             docs.append((doc, scores[0][j]))
-        return docs
+
+        return docs[:4]
 
     def similarity_search_by_id(self, id: str, k: int = 4) -> List[Document]:
         index_id = self.docstore[id].metadata["index_id"]

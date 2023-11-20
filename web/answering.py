@@ -18,24 +18,10 @@ import os
 from pathlib import Path
 
 async def generate_answer(question: str, collection):
-    # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-    #model_name = "gpt-3.5-turbo"
-    #model_name = "gpt-4"
-    #model_name = "gpt-3.5-turbo-16k"
-
-    max_tokens = 512 # 512
-    batch_size = 5
-
     my_db_dir = db_dir(collection)
     my_data_dir = data_dir(collection)
 
     search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
-    llm = OpenAI(
-        temperature=0.0,
-        max_tokens=max_tokens,
-        #model_name=model_name,
-        batch_size=batch_size
-    )
     
     factory = AnsweringFactory()
     output = None
@@ -53,13 +39,14 @@ async def generate_answer(question: str, collection):
     with get_openai_callback() as cb:
         if True:
             mode = 'noprompt'
-            instance = factory.create(mode, search_index, llm)
+            #mode = 'stuffedprompt'
+            instance = factory.create(mode, search_index)
 
             output = instance.reformat(instance.run(question), my_data_dir)
         else:
             results = {}
             for mode in factory.getMapper():
-                instance = factory.create(mode, search_index, llm)
+                instance = factory.create(mode, search_index)
 
                 results[mode] = instance.reformat(instance.run(question), my_data_dir)
 
@@ -74,20 +61,44 @@ async def generate_answer(question: str, collection):
 
 
 class AnsweringInterface:
-    def __init__(self, search_index, llm):
+    llm = None
+
+    def __init__(self, search_index):
         self.search_index = search_index
-        self.llm = llm
 
     def run(self, question: str):
         pass
 
     def meta(self):
         pass
+    
+    def getLLM(self):
+        if (self.llm):
+            return self.llm
+        
+        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
+        #model_name = "gpt-3.5-turbo"
+        #model_name = "gpt-4"
+        #model_name = "gpt-3.5-turbo-16k"
+        #model_name = "gpt-3.5-turbo-instruct"
+        #model_name = "gpt-3.5-turbo-1106"
+
+        max_tokens = 1024 # 512
+        batch_size = 5
+        
+        self.llm = OpenAI(
+            temperature=0.0,
+            max_tokens=max_tokens,
+            #model_name=model_name,
+            batch_size=batch_size
+        )
+
+        return self.llm
 
     def getRetriever(self):
         return self.search_index.as_retriever(
             search_kwargs={
-                'k': 10,
+                'k': 15,
                 'filter': {
                     'version': 'latest'
                 },
@@ -141,13 +152,13 @@ class AnsweringFactory:
             'chatbot': Chatbot,
         }
 
-    def create(self, name: str, search_index, llm) -> AnsweringInterface:
+    def create(self, name: str, search_index) -> AnsweringInterface:
         mapping = self.getMapper()
 
         selected_class = mapping.get(name)
 
         if selected_class:
-            return selected_class(search_index, llm)
+            return selected_class(search_index)
         
         raise ValueError("Incorrect answering implementation. Available: " + ','.join(mapping.keys()))
 
@@ -155,7 +166,7 @@ class AnsweringFactory:
 class NoPrompt(AnsweringInterface):
     def run(self, question: str):
         chain = RetrievalQAWithSourcesChain.from_chain_type(
-            self.llm,
+            self.getLLM(),
             chain_type="map_reduce",
             retriever=self.getRetriever(),
         )
@@ -172,14 +183,12 @@ class NoPrompt(AnsweringInterface):
 class StuffedPrompt(AnsweringInterface):
     def run(self, question: str):
         prompt_template = """Use the context below to provide a detailed answer for the question below.
-        Transform the answer to the markdown format.
-        If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
-        If the question is not about Shopware, politely inform them that you are tuned to only answer questions about Shopware.
+If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
 
-        {context}
-        
-        Question: {question}
-        Answer:"""
+{context}
+
+Question: {question}
+Answer:"""
 
         PROMPT = PromptTemplate(
             template=prompt_template, input_variables=["context", "question"]
@@ -187,7 +196,7 @@ class StuffedPrompt(AnsweringInterface):
 
         # chain = LLMChain(llm=llm, prompt=PROMPT)
         chain = RetrievalQA.from_chain_type(
-            self.llm,
+            self.getLLM(),
             chain_type="stuff",
             retriever=self.getRetriever(),
             chain_type_kwargs = {"prompt": PROMPT},
@@ -215,7 +224,7 @@ class RagChain(AnsweringInterface):
         rag_prompt_custom = PromptTemplate.from_template(template)
 
         rag_chain = (
-            {"context": self.getRetriever(), "question": RunnablePassthrough()} | rag_prompt_custom | self.llm
+            {"context": self.getRetriever(), "question": RunnablePassthrough()} | rag_prompt_custom | self.getLLM()
         )
 
         return {
@@ -226,7 +235,7 @@ class RagChain(AnsweringInterface):
 class MapReduce(AnsweringInterface):
     def run(self, question: str):
         # https://python.langchain.com/docs/use_cases/question_answering/in_memory_question_answering
-        chain = load_qa_chain(self.llm, chain_type="map_reduce")
+        chain = load_qa_chain(self.getLLM(), chain_type="map_reduce")
         docs = self.getDocuments(question)
         
         result = chain({"input_documents": docs, "question": question}, return_only_outputs=True)
@@ -258,7 +267,7 @@ class Italian(AnsweringInterface):
         COMBINE_PROMPT = PromptTemplate(
             template=combine_prompt_template, input_variables=["summaries", "question"]
         )
-        chain = load_qa_chain(self.llm, chain_type="map_reduce", return_map_steps=True, question_prompt=QUESTION_PROMPT, combine_prompt=COMBINE_PROMPT)
+        chain = load_qa_chain(self.getLLM(), chain_type="map_reduce", return_map_steps=True, question_prompt=QUESTION_PROMPT, combine_prompt=COMBINE_PROMPT)
         docs = self.getDocuments(question)
 
         result = chain({"input_documents": docs, "question": question}, return_only_outputs=True)
@@ -290,7 +299,7 @@ class ReducedPrompt(AnsweringInterface):
         COMBINE_PROMPT = PromptTemplate(
             template=combine_prompt_template, input_variables=["summaries", "question"]
         )
-        chain = load_qa_chain(self.llm, chain_type="map_reduce", return_map_steps=True, question_prompt=QUESTION_PROMPT, combine_prompt=COMBINE_PROMPT)
+        chain = load_qa_chain(self.getLLM(), chain_type="map_reduce", return_map_steps=True, question_prompt=QUESTION_PROMPT, combine_prompt=COMBINE_PROMPT)
         docs = self.getDocuments(question)
 
         result = chain({"input_documents": docs, "question": question}, return_only_outputs=True)
@@ -315,7 +324,7 @@ class TestChat(AnsweringInterface):
 
         # create retriever chain
         qa_chain = RetrievalQAWithSourcesChain.from_chain_type(
-            llm=self.llm,
+            llm=self.getLLM(),
             # mmr > for diversity in documents
             # Set fetch_k value to get the fetch_k most similar search. This is basically semantic search
             retriever=self.getRetriever(),
@@ -330,7 +339,7 @@ class TestChat(AnsweringInterface):
 
 class AnotherTestChat(AnsweringInterface):
     def run(self, question: str):
-        qa_chain = load_qa_chain(self.llm, chain_type="stuff")
+        qa_chain = load_qa_chain(self.getLLM(), chain_type="stuff")
         qa = RetrievalQA(combine_documents_chain=qa_chain, retriever=self.getRetriever())
 
         return {
@@ -352,9 +361,9 @@ class Chatbot(AnsweringInterface):
         #            return_source_documents=True
         #)
 
-        question_generator = LLMChain(llm=self.llm, prompt=CONDENSE_QUESTION_PROMPT)
+        question_generator = LLMChain(llm=self.getLLM(), prompt=CONDENSE_QUESTION_PROMPT)
         #doc_chain = load_qa_chain(llm, chain_type="map_reduce")
-        doc_chain = load_qa_with_sources_chain(self.llm, chain_type="map_reduce")
+        doc_chain = load_qa_with_sources_chain(self.getLLM(), chain_type="map_reduce")
 
         chatbot = ConversationalRetrievalChain(
             retriever=self.getRetriever(),
