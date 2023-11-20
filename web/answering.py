@@ -19,8 +19,12 @@ from pathlib import Path
 
 async def generate_answer(question: str, collection):
     # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-    # model_name = "gpt-3.5-turbo"
-    # model_name = "gpt-4"
+    model_name = "gpt-3.5-turbo"
+    #model_name = "gpt-4"
+    #model_name = "gpt-3.5-turbo-16k"
+
+    max_tokens = 512 # 512
+    batch_size = 5
 
     my_db_dir = db_dir(collection)
     my_data_dir = data_dir(collection)
@@ -28,9 +32,9 @@ async def generate_answer(question: str, collection):
     search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
     llm = OpenAI(
         temperature=0.0,
-        max_tokens=512,
+        max_tokens=max_tokens,
         #model_name=model_name,
-        batch_size=5
+        batch_size=batch_size
     )
     
     factory = AnsweringFactory()
@@ -48,7 +52,7 @@ async def generate_answer(question: str, collection):
 
     with get_openai_callback() as cb:
         if True:
-            mode = 'stuffedprompt'
+            mode = 'noprompt'
             instance = factory.create(mode, search_index, llm)
 
             output = instance.reformat(instance.run(question), my_data_dir)
@@ -83,7 +87,7 @@ class AnsweringInterface:
     def getRetriever(self):
         return self.search_index.as_retriever(
             search_kwargs={
-                'k': 15,
+                'k': 10,
                 'filter': {
                     'version': 'latest'
                 },
@@ -168,11 +172,9 @@ class NoPrompt(AnsweringInterface):
 class StuffedPrompt(AnsweringInterface):
     def run(self, question: str):
         prompt_template = """Use the context below to provide a detailed answer for the question below.
-        Pay special attention to differ between a Shopware 6 App and a Plugin.
         Transform the answer to the markdown format.
         If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
         If the question is not about Shopware, politely inform them that you are tuned to only answer questions about Shopware.
-        If the question includes a request for code, provide a code block directly from the documentation.
 
         {context}
         
