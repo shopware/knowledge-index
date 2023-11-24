@@ -19,6 +19,7 @@ import asyncio
 
 from .utils import safe_dir
 
+# https://github.com/langchain-ai/langchain/blob/master/libs/langchain/langchain/vectorstores/faiss.py
 class FaissMap(VectorStore):
     def __init__(
         self,
@@ -102,7 +103,24 @@ class FaissMap(VectorStore):
             
             docs.append((doc, scores[0][j]))
 
-        return docs[:4]
+        # limit by context size
+        finalDocs = []
+        tokens = 0
+        model = kwargs.get('model')
+        if (model):
+            print("Limiting to " + str(model.context))
+            for doc in docs:
+                docTokens = len(doc[0].page_content) / 4
+
+                if docTokens + tokens > model.context:
+                    break
+                
+                finalDocs.append(doc)
+                tokens = tokens + docTokens
+
+            return finalDocs
+
+        return docs[:k]
 
     def similarity_search_by_id(self, id: str, k: int = 4) -> List[Document]:
         index_id = self.docstore[id].metadata["index_id"]

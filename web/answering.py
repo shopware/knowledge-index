@@ -41,11 +41,11 @@ async def generate_answer(question: str, collection):
     instances = 0
 
     with get_openai_callback() as cb:
-        if False:
+        if True:
             instances = instances + 1
             mode = 'stuffedprompt'
             #mode = 'noprompt'
-            instance = answeringFactory.create(mode, search_index)
+            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo")
 
             output = instance.reformat(instance.run(question), my_data_dir)
         else:
@@ -68,7 +68,7 @@ async def generate_answer(question: str, collection):
                     for model in modelFactory.getMapper():
                         try:
                             instances = instances + 1
-                            print("Matrix Q: " + q + " Model: " + model + " Mode: " + mode)
+                            # print("Matrix Q: " + q + " Model: " + model + " Mode: " + mode)
                             instance = answeringFactory.create(mode, search_index, model)
 
                             response = instance.reformat(instance.run(q), my_data_dir)
@@ -99,7 +99,7 @@ class ModelInterface:
     def getLLM(self):
         # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
         max_tokens = 1024 # 512
-        batch_size = 5
+        #batch_size = 5
         
         self.llm = OpenAI(
             temperature=0.0,
@@ -114,12 +114,12 @@ class ModelFactory:
 
     def getMapper(self):
         return {
-            "gpt-4-1106-preview": GPT41106Preview,
-            "gpt-4": GPT4,
-            "gpt-4-32k": GPT432k,
-            "gpt-3.5-turbo-1106": GPT35Turbo1106,
+            # "gpt-4-1106-preview": GPT41106Preview, # not for production
+            # "gpt-4": GPT4, # "I don't know"
+            #"gpt-4-32k": GPT432k, # no access
+            # "gpt-3.5-turbo-1106": GPT35Turbo1106, # weird results
             "gpt-3.5-turbo": GPT35Turbo,
-            "gpt-3.5-turbo-instruct": GPT35TurboInstruct
+            #"gpt-3.5-turbo-instruct": GPT35TurboInstruct
         }
 
     def create(self, name: str) -> ModelInterface:
@@ -181,12 +181,15 @@ class AnsweringInterface:
         return self.llm
 
     def getRetriever(self):
+        modelFactory = ModelFactory()
+
         return self.search_index.as_retriever(
             search_kwargs={
                 'k': 15,
                 'filter': {
                     'version': 'latest'
                 },
+                'model': modelFactory.create(self.model),
             }
         )
     
@@ -226,7 +229,7 @@ class AnsweringInterface:
 class AnsweringFactory:
     def getMapper(self):
         return {
-            'noprompt': NoPrompt,
+            #'noprompt': NoPrompt,
             'stuffedprompt': StuffedPrompt,
             #'ragchain': RagChain,
             #'mapreduce': MapReduce,
@@ -268,25 +271,15 @@ class NoPrompt(AnsweringInterface):
 
 class StuffedPrompt(AnsweringInterface):
     def run(self, question: str):
-        prompt_template = """Use the context below to provide a detailed answer for the question below.
-If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
-
-{context}
-
-Question: {question}
-Answer:"""
-
-        # limit the length fo context (3/4) + take into the account the chosen model
-        # update the prompt so it'll return markdown
         prompt_template = """
 You are an AI assistant for the developer documentation of the eCommerce API Backend Shopware. The documentation is located at https://developer.shopware.com.
 You are given extracted parts of a long document for context and a question to answer.
 If the question includes a request for code, provide a code block directly from the documentation.
-Pay special attention to differ between a Shopware 6 App and a Plugin.
 If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
 If the question is not about Shopware, politely inform them that you are tuned to only answer questions about Shopware.
+Wrap single-line code or keyword into single tick (`). Wrap any code into triple ticks (```).
 
-Context in markdown:
+Context:
 {context}
 
 Question:
