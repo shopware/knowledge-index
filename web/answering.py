@@ -15,6 +15,7 @@ from langchain.globals import set_llm_cache
 from .tracking import send_event
 
 import os
+import hashlib
 from pathlib import Path
 
 async def generate_answer(question: str, collection):
@@ -23,7 +24,8 @@ async def generate_answer(question: str, collection):
 
     search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
     
-    factory = AnsweringFactory()
+    answeringFactory = AnsweringFactory()
+    modelFactory = ModelFactory()
     output = None
 
     # https://python.langchain.com/docs/modules/model_io/llms/token_usage_tracking
@@ -36,35 +38,131 @@ async def generate_answer(question: str, collection):
         Path(my_sqlite_dir).mkdir(exist_ok=True, parents=True)
     set_llm_cache(SQLiteCache(database_path=Path(my_sqlite_dir) / ".langchain.db"))
 
+    instances = 0
+
     with get_openai_callback() as cb:
         if True:
-            mode = 'noprompt'
-            #mode = 'stuffedprompt'
-            instance = factory.create(mode, search_index)
+            instances = instances + 1
+            mode = 'stuffedprompt'
+            #mode = 'noprompt'
+            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo")
 
             output = instance.reformat(instance.run(question), my_data_dir)
         else:
-            results = {}
-            for mode in factory.getMapper():
-                instance = factory.create(mode, search_index)
+            questions = [
+                #"Help me create an app.",
+                #"How can I aggregate products by category?",
+                #"How can I create custom CMS elemnts?",
+                #"How can I extend Shopware?",
+                #"How do I create a new controller?",
+                "List me the slots of the SW-Card",
+                "What icons can I use to represent the shopping cart?",
+                "What is the code for adding a primary button?",
+                #"What's the authentication for the ADmin API based on?",
+                #"Where can I download Shopware?",
+            ]
 
-                results[mode] = instance.reformat(instance.run(question), my_data_dir)
+            results = {}
+            for mode in answeringFactory.getMapper():
+                for q in questions:
+                    for model in modelFactory.getMapper():
+                        try:
+                            instances = instances + 1
+                            # print("Matrix Q: " + q + " Model: " + model + " Mode: " + mode)
+                            instance = answeringFactory.create(mode, search_index, model)
+
+                            response = instance.reformat(instance.run(q), my_data_dir)
+                            response["question"] = q
+                            results[mode + ":" + model + ":" + hashlib.sha1(q.encode('utf-8')).hexdigest()] = response
+                        except Exception as e:
+                            results[mode + ":" + model + ":" + hashlib.sha1(q.encode('utf-8')).hexdigest()] = str(e)
+                            print(e)
 
             output = results
 
         # track event
-        await send_event('all', 'qa', {**{"question": question, "collection": collection}, **cb.__dict__})
+        await send_event('debug', 'qa', {**{"question": question, "collection": collection, "instances": instances}, **cb.__dict__})
 
         output['stats'] = cb
     
     return output
 
 
+# START MODELS
+class ModelInterface:
+    def __init__(self):
+        pass
+    
+    def getContext(self):
+        return self.context
+    
+    def getLLM(self):
+        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
+        max_tokens = 1024 # 512
+        #batch_size = 5
+        
+        self.llm = OpenAI(
+            temperature=0.0,
+            max_tokens=max_tokens,
+            model_name=self.name,
+            #batch_size=batch_size
+        )
+
+        return self.llm
+
+class ModelFactory:
+
+    def getMapper(self):
+        return {
+            # "gpt-4-1106-preview": GPT41106Preview, # not for production
+            # "gpt-4": GPT4, # "I don't know"
+            #"gpt-4-32k": GPT432k, # no access
+            # "gpt-3.5-turbo-1106": GPT35Turbo1106, # weird results
+            "gpt-3.5-turbo": GPT35Turbo,
+            #"gpt-3.5-turbo-instruct": GPT35TurboInstruct
+        }
+
+    def create(self, name: str) -> ModelInterface:
+        mapping = self.getMapper()
+
+        selected_class = mapping.get(name)
+
+        if selected_class:
+            return selected_class()
+        
+        raise ValueError("Incorrect model implementation. Available: " + ','.join(mapping.keys()))
+
+class GPT41106Preview(ModelInterface):
+    name = "gpt-4-1106-preview"
+    context = 128000
+
+class GPT4(ModelInterface):
+    name = "gpt-4"
+    context = 8192
+
+class GPT432k(ModelInterface):
+    name = "gpt-4-32k"
+    context = 32768
+
+class GPT35Turbo1106(ModelInterface):
+    name = "gpt-3.5-turbo-1106"
+    context = 16385
+
+class GPT35Turbo(ModelInterface):
+    name = "gpt-3.5-turbo"
+    context = 4096
+
+class GPT35TurboInstruct(ModelInterface):
+    name = "gpt-3.5-turbo-instruct"
+    context = 4096
+
+# START ANSWERS
 class AnsweringInterface:
     llm = None
 
-    def __init__(self, search_index):
+    def __init__(self, search_index, model):
         self.search_index = search_index
+        self.model = model
 
     def run(self, question: str):
         pass
@@ -75,33 +173,23 @@ class AnsweringInterface:
     def getLLM(self):
         if (self.llm):
             return self.llm
-        
-        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-        #model_name = "gpt-3.5-turbo"
-        #model_name = "gpt-4"
-        #model_name = "gpt-3.5-turbo-16k"
-        #model_name = "gpt-3.5-turbo-instruct"
-        #model_name = "gpt-3.5-turbo-1106"
 
-        max_tokens = 1024 # 512
-        batch_size = 5
-        
-        self.llm = OpenAI(
-            temperature=0.0,
-            max_tokens=max_tokens,
-            #model_name=model_name,
-            batch_size=batch_size
-        )
+        modelFactory = ModelFactory()
+
+        self.llm = modelFactory.create(self.model).getLLM()
 
         return self.llm
 
     def getRetriever(self):
+        modelFactory = ModelFactory()
+
         return self.search_index.as_retriever(
             search_kwargs={
                 'k': 15,
                 'filter': {
                     'version': 'latest'
                 },
+                'model': modelFactory.create(self.model),
             }
         )
     
@@ -141,24 +229,24 @@ class AnsweringInterface:
 class AnsweringFactory:
     def getMapper(self):
         return {
-            'noprompt': NoPrompt,
+            #'noprompt': NoPrompt,
             'stuffedprompt': StuffedPrompt,
-            'ragchain': RagChain,
-            'mapreduce': MapReduce,
-            'italian': Italian,
-            'reducedprompt': ReducedPrompt,
-            # 'testchat': TestChat,
-            'anothertestchat': AnotherTestChat,
-            'chatbot': Chatbot,
+            #'ragchain': RagChain,
+            #'mapreduce': MapReduce,
+            #'italian': Italian,
+            #'reducedprompt': ReducedPrompt,
+            ## 'testchat': TestChat,
+            #'anothertestchat': AnotherTestChat,
+            #'chatbot': Chatbot,
         }
 
-    def create(self, name: str, search_index) -> AnsweringInterface:
+    def create(self, name: str, search_index, model: str) -> AnsweringInterface:
         mapping = self.getMapper()
 
         selected_class = mapping.get(name)
 
         if selected_class:
-            return selected_class(search_index)
+            return selected_class(search_index, model)
         
         raise ValueError("Incorrect answering implementation. Available: " + ','.join(mapping.keys()))
 
@@ -169,6 +257,7 @@ class NoPrompt(AnsweringInterface):
             self.getLLM(),
             chain_type="map_reduce",
             retriever=self.getRetriever(),
+            verbose = True,
         )
 
         return chain({"question": question}, return_only_outputs=True)
@@ -182,13 +271,24 @@ class NoPrompt(AnsweringInterface):
 
 class StuffedPrompt(AnsweringInterface):
     def run(self, question: str):
-        prompt_template = """Use the context below to provide a detailed answer for the question below.
+        prompt_template = """
+You are an AI assistant for the developer documentation of the eCommerce API Backend Shopware. The documentation is located at https://developer.shopware.com.
+You are given extracted parts of a long document for context and a question to answer.
+If the question includes a request for code, provide a code block directly from the documentation.
 If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
+If the question is not about Shopware, politely inform them that you are tuned to only answer questions about Shopware.
+Wrap single-line code or keyword into single tick (`). Wrap any code into triple ticks (```).
 
+Context:
 {context}
 
-Question: {question}
-Answer:"""
+Question:
+{question}
+
+=========
+Answer in Markdown:
+
+"""
 
         PROMPT = PromptTemplate(
             template=prompt_template, input_variables=["context", "question"]
