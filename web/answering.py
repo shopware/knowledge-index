@@ -99,6 +99,7 @@ class ModelInterface:
     def getLLM(self):
         # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
         max_tokens = 1024 # 512
+        max_tokens = -1
         #batch_size = 5
         
         self.llm = OpenAI(
@@ -285,9 +286,7 @@ Context:
 Question:
 {question}
 
-=========
 Answer in Markdown:
-
 """
 
         PROMPT = PromptTemplate(

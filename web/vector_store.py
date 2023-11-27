@@ -111,12 +111,15 @@ class FaissMap(VectorStore):
             print("Limiting to " + str(model.context))
             for doc in docs:
                 docTokens = len(doc[0].page_content) / 4
+                print("New doc has " + str(docTokens) + " tokens")
 
                 if docTokens + tokens > model.context:
+                    print("Break, limit exceeded")
                     break
                 
                 finalDocs.append(doc)
                 tokens = tokens + docTokens
+                print("New total tokens: " + str(tokens))
 
             return finalDocs
 
