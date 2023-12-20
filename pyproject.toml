@@ -41,7 +41,7 @@ ruff = "^0.1.5"
 cli = "cli.main:app"
 
 [tool.poetry.group.dev.dependencies]
-transformers = "^4.30.2"
+transformers = "^4.36.0"
 
 [build-system]
 requires = ["poetry-core"]
