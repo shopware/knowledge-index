@@ -1,4 +1,6 @@
-from langchain.llms import OpenAI#, AzureOpenAI
+from langchain.llms import OpenAI, AzureOpenAI
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings.azure_openai import AzureOpenAIEmbeddings
 
 class LLMFactory:
     def create(self, model_name: str):
@@ -14,9 +16,26 @@ class LLMFactory:
             #batch_size=batch_size
         )
     
+    def createEmbeddings(self, collection: str = None):
+        collections = collections_config()
+        
+        if collection in collections:
+            return collections.get(collection)["embeddings"]()
+        
+        return OpenAIEmbeddings()
+    
     #def createForCollection(self, collection: str, model_name: str):
     #    collections = {
     #        "shopware--operations-portal--test": AzureOpenAI,
     #    }
     #    
     #    return self.create(model_name)
+
+
+def collections_config():
+    return {
+        "shopware--operations-portal--test": {
+            "llm": AzureOpenAI,
+            "embeddings": AzureOpenAIEmbeddings,
+        }
+    }
