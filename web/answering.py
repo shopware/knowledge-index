@@ -1,7 +1,6 @@
 from web.config import get_embedding_fn, db_dir, data_dir, sqlite_dir
 from web.vector_store import FaissMap
 
-from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQAWithSourcesChain, RetrievalQA, LLMChain, ConversationalRetrievalChain
 from langchain.chains.question_answering import load_qa_chain
@@ -13,6 +12,7 @@ from langchain.cache import SQLiteCache
 from langchain.globals import set_llm_cache
 
 from .tracking import send_event
+from .llm import LLMFactory
 
 import os
 import hashlib
@@ -97,17 +97,9 @@ class ModelInterface:
         return self.context
     
     def getLLM(self):
-        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-        max_tokens = 1024 # 512
-        max_tokens = -1
-        #batch_size = 5
+        llmFactory = LLMFactory()
         
-        self.llm = OpenAI(
-            temperature=0.0,
-            max_tokens=max_tokens,
-            model_name=self.name,
-            #batch_size=batch_size
-        )
+        self.llm = llmFactory.create(self.name)
 
         return self.llm
 

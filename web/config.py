@@ -1,6 +1,6 @@
 import os
 from typing import Union
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from .utils import safe_dir_append
 
 
