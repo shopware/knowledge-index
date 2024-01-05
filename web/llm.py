@@ -14,9 +14,9 @@ class LLMFactory:
             #batch_size=batch_size
         )
     
-    def createForCollection(self, collection: str, model_name: str):
-        collections = {
-            "shopware--operations-portal--test": AzureOpenAI,
-        }
-        
-        return self.create(model_name)
+    #def createForCollection(self, collection: str, model_name: str):
+    #    collections = {
+    #        "shopware--operations-portal--test": AzureOpenAI,
+    #    }
+    #    
+    #    return self.create(model_name)
