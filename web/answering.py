@@ -45,7 +45,7 @@ async def generate_answer(question: str, collection):
             instances = instances + 1
             mode = 'stuffedprompt'
             #mode = 'noprompt'
-            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo")
+            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo", collection)
 
             output = instance.reformat(instance.run(question), my_data_dir)
         else:
@@ -69,7 +69,7 @@ async def generate_answer(question: str, collection):
                         try:
                             instances = instances + 1
                             # print("Matrix Q: " + q + " Model: " + model + " Mode: " + mode)
-                            instance = answeringFactory.create(mode, search_index, model)
+                            instance = answeringFactory.create(mode, search_index, model, collection)
 
                             response = instance.reformat(instance.run(q), my_data_dir)
                             response["question"] = q
@@ -96,10 +96,10 @@ class ModelInterface:
     def getContext(self):
         return self.context
     
-    def getLLM(self):
+    def getLLM(self, collection: str = None):
         llmFactory = LLMFactory()
         
-        self.llm = llmFactory.createLLM(self.name)
+        self.llm = llmFactory.createLLM(self.name, collecion)
 
         return self.llm
 
@@ -153,9 +153,10 @@ class GPT35TurboInstruct(ModelInterface):
 class AnsweringInterface:
     llm = None
 
-    def __init__(self, search_index, model):
+    def __init__(self, search_index, model, collection):
         self.search_index = search_index
         self.model = model
+        self.collection = collection
 
     def run(self, question: str):
         pass
@@ -169,7 +170,7 @@ class AnsweringInterface:
 
         modelFactory = ModelFactory()
 
-        self.llm = modelFactory.create(self.model).getLLM()
+        self.llm = modelFactory.create(self.model).getLLM(self.collection)
 
         return self.llm
 
@@ -233,13 +234,13 @@ class AnsweringFactory:
             #'chatbot': Chatbot,
         }
 
-    def create(self, name: str, search_index, model: str) -> AnsweringInterface:
+    def create(self, name: str, search_index, model: str, collection: str) -> AnsweringInterface:
         mapping = self.getMapper()
 
         selected_class = mapping.get(name)
 
         if selected_class:
-            return selected_class(search_index, model)
+            return selected_class(search_index, model, collection)
         
         raise ValueError("Incorrect answering implementation. Available: " + ','.join(mapping.keys()))
 

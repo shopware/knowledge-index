@@ -3,7 +3,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.azure_openai import AzureOpenAIEmbeddings
 
 class LLMFactory:
-    def createLLM(self, model_name: str):
+    def createLLM(self, model_name: str, collection: str = None):
         collections = collections_config()
         
         if collection in collections:
