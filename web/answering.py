@@ -99,7 +99,7 @@ class ModelInterface:
     def getLLM(self, collection: str = None):
         llmFactory = LLMFactory()
         
-        self.llm = llmFactory.createLLM(self.name, collecion)
+        self.llm = llmFactory.createLLM(self.name, collection)
 
         return self.llm
 
