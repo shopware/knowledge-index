@@ -1,3 +1,5 @@
+import os
+
 from langchain.llms import OpenAI, AzureOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.azure_openai import AzureOpenAIEmbeddings
