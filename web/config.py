@@ -56,6 +56,7 @@ def sqlite_dir(collection: str = None):
 class Settings(BaseSettings):
     # api keys
     openai_api_key: Union[str, None] = None
+    azure_openai_api_key: Union[str, None] = None
     knowledge_api_key: Union[str, None] = None
     # data dirs
     root_dir: str = '/'

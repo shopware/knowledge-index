@@ -7,7 +7,7 @@ class LLMFactory:
         collections = collections_config()
         
         if collection in collections:
-            return collections.get(collection)["llm"]()
+            return collections.get(collection)["llm"](model_name)
         
         # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
         max_tokens = 1024 # 512
@@ -33,7 +33,13 @@ class LLMFactory:
 def collections_config():
     return {
         "shopware--operations-portal--test": {
-            "llm": AzureOpenAI,
+            "llm": lambda model: AzureOpenAI(
+                api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+                azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+                # api_version = "2023-05-15",
+                temperature=0.0,
+                model_name=model,
+            ),
             "embeddings": AzureOpenAIEmbeddings,
         }
     }
