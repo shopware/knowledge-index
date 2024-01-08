@@ -22,7 +22,7 @@ async def generate_answer(question: str, collection):
     my_db_dir = db_dir(collection)
     my_data_dir = data_dir(collection)
 
-    search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
+    search_index = FaissMap.load_local(my_db_dir, get_embedding_fn(collection))
     
     answeringFactory = AnsweringFactory()
     modelFactory = ModelFactory()
@@ -99,7 +99,7 @@ class ModelInterface:
     def getLLM(self):
         llmFactory = LLMFactory()
         
-        self.llm = llmFactory.create(self.name)
+        self.llm = llmFactory.createLLM(self.name)
 
         return self.llm
 

@@ -3,7 +3,12 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.azure_openai import AzureOpenAIEmbeddings
 
 class LLMFactory:
-    def create(self, model_name: str):
+    def createLLM(self, model_name: str):
+        collections = collections_config()
+        
+        if collection in collections:
+            return collections.get(collection)["llm"]()
+        
         # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
         max_tokens = 1024 # 512
         max_tokens = -1
@@ -16,7 +21,7 @@ class LLMFactory:
             #batch_size=batch_size
         )
     
-    def createEmbeddings(self, collection: str = None):
+    def createEmbeddingFn(self, collection: str = None):
         collections = collections_config()
         
         if collection in collections:
@@ -24,14 +29,7 @@ class LLMFactory:
         
         return OpenAIEmbeddings()
     
-    #def createForCollection(self, collection: str, model_name: str):
-    #    collections = {
-    #        "shopware--operations-portal--test": AzureOpenAI,
-    #    }
-    #    
-    #    return self.create(model_name)
-
-
+    
 def collections_config():
     return {
         "shopware--operations-portal--test": {

@@ -5,7 +5,7 @@ from .vector_store import FaissMap
 
 
 def query(query: str, collection, num: int = 5):
-    db = FaissMap.load_local(db_dir(collection), get_embedding_fn())
+    db = FaissMap.load_local(db_dir(collection), get_embedding_fn(collection))
 
     results = db.similarity_search_with_score(query, num)
 
@@ -13,7 +13,7 @@ def query(query: str, collection, num: int = 5):
 
 
 def query_by_id(id: str, collection, num: int = 5):
-    db = FaissMap.load_local(db_dir(collection), get_embedding_fn())
+    db = FaissMap.load_local(db_dir(collection), get_embedding_fn(collection))
 
     results = db.similarity_search_by_id(id, num)
 

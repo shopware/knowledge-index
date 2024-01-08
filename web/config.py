@@ -17,7 +17,7 @@ def get_embedding_fn(collection: str = None):
         url = "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
         return TensorflowHubEmbeddings(model_url=url)
 
-    return LLMFactory.createEmbeddings(collection)
+    return LLMFactory.createEmbeddingFn(collection)
 
 
 def env_dir(env, dir, collection: str = None):

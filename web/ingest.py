@@ -129,7 +129,7 @@ def ingest_url(url, collection):
     docs_splitted = split_docs(docs)
 
     # use LangChain VectorStore from_documents method
-    db = FaissMap.from_documents(docs_splitted, get_embedding_fn())
+    db = FaissMap.from_documents(docs_splitted, get_embedding_fn(collection))
 
     # create a new index
     FaissMap.save_local(db, db_dir(collection))
@@ -155,7 +155,7 @@ def ingest(collection) -> FaissMap:
     docs_splitted = split_docs(docs)
 
     # use LangChain VectorStore from_documents method
-    db = FaissMap.from_documents(docs_splitted, get_embedding_fn())
+    db = FaissMap.from_documents(docs_splitted, get_embedding_fn(collection))
 
     # create a new index
     FaissMap.save_local(db, db_dir(collection))
@@ -207,10 +207,10 @@ def ingest_diff(collection):
     docs_splitted = split_docs(docs)
 
     # create a partial db
-    db = FaissMap.from_documents(docs_splitted, get_embedding_fn())
+    db = FaissMap.from_documents(docs_splitted, get_embedding_fn(collection))
 
     # merge indexes
-    original_store = FaissMap.load_local(db_dir(collection), get_embedding_fn())
+    original_store = FaissMap.load_local(db_dir(collection), get_embedding_fn(collection))
     merged_store = FaissMap.merge([original_store, db])
     FaissMap.save_local(merged_store, db_dir(collection))
 
