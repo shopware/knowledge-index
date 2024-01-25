@@ -5,7 +5,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.azure_openai import AzureOpenAIEmbeddings
 
 class LLMFactory:
-    def createLLM(self, model_name: str, collection: str = None):
+    def createLLM(model_name: str, collection: str = None):
         collections = collections_config()
         
         if collection in collections:
@@ -23,7 +23,7 @@ class LLMFactory:
             #batch_size=batch_size
         )
     
-    def createEmbeddingFn(self, collection: str = None):
+    def createEmbeddingFn(collection: str = None):
         collections = collections_config()
         
         if collection in collections:
@@ -36,11 +36,12 @@ def collections_config():
     return {
         "shopware--operations-portal--test": {
             "llm": lambda model: AzureOpenAI(
+                api_type = "azure",
                 api_key = os.getenv("AZURE_OPENAI_API_KEY"),
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                # api_version = "2023-05-15",
+                api_version = "2023-05-15",
+                
                 temperature=0.0,
-                model_name=model,
             ),
             "embeddings": AzureOpenAIEmbeddings,
         }

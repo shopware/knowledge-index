@@ -97,9 +97,7 @@ class ModelInterface:
         return self.context
     
     def getLLM(self, collection: str = None):
-        llmFactory = LLMFactory()
-        
-        self.llm = llmFactory.createLLM(self.name, collection)
+        self.llm = LLMFactory.createLLM(self.name, collection)
 
         return self.llm
 
