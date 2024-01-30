@@ -110,7 +110,7 @@ class FaissMap(VectorStore):
         if (model):
             print("Limiting to " + str(model.context))
             for doc in docs:
-                docTokens = len(doc[0].page_content) / 4
+                docTokens = len(doc[0].page_content) / 3.9
                 print("New doc has " + str(docTokens) + " tokens")
 
                 if docTokens + tokens > model.context:
