@@ -77,7 +77,7 @@ def get_doc_description(doc):
 
 
 def get_doc_version(doc):
-    pattern = r'/v(\d+\.\d+)/'
+    pattern = r'/v(\d+\.\d+)(rc)?/'
     match = re.search(pattern, doc.metadata['source'])
     
     if match:
