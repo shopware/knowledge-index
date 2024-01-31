@@ -28,11 +28,11 @@ jobs:
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") ruff check web/
       
       - uses: superfly/flyctl-actions/setup-flyctl@master
-        if: ${{ github.ref == 'refs/heads/DX-hotfix' }}
+        if: ${{ github.ref == 'refs/remotes/pull/23/merge' }}
 
       - name: Deploy to fly.io
         timeout-minutes: 10
-        if: ${{ github.ref == 'refs/heads/DX-hotfix' }}
+        if: ${{ github.ref == 'refs/remotes/pull/23/merge' }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
         run: flyctl deploy --local-only --wait-timeout=600 -i ai-ml-web:latest
