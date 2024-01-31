@@ -7,6 +7,8 @@
 - `KNOWLEDGE_API_KEY` (required)
 - `OPENAI_API_KEY` (optional)
 - `POSTHOG_PROJECT_API_KEY` (optional)
+- `AZURE_OPENAI_API_KEY` (optional)
+- `AZURE_OPENAI_ENDPOINT` (optional)
 - `WEB_IMAGE` (optional), default: `ai-ml-web:latest` - you can skip building your local image and use pre-built
   no-code image `bojanrajh/python:latest`
 
@@ -16,6 +18,8 @@
 $ export KNOWLEDGE_API_KEY="s0m3-r4nd0m-4p1-k3y-h34d3r-f0r-b4s1c-s3c00r1ty"
 $ export OPENAI_API_KEY="sk-..."
 $ export POSTHOG_PROJECT_API_KEY="phc_..."
+$ export AZURE_OPENAI_API_KEY="..."
+$ export AZURE_OPENAI_ENDPOINT="..."
 $ export WEB_IMAGE="bojanrajh/python:latest"
 ```
 
@@ -229,5 +233,7 @@ Fly.io deployment:
 - `fly secrets set OPENAI_API_KEY="..."` - or fallback to tensorflow
 - `fly secrets set KNOWLEDGE_API_KEY="..."` - required
 - `fly secrets set POSTHOG_PROJECT_API_KEY="..."` - optional
+- `fly secrets set AZURE_OPENAI_API_KEY="..."` - optional
+- `fly secrets set AZURE_OPENAI_ENDPOINT="..."` - optional
 - `fly volumes create data --region ams --size 1` + see [./fly-toml](./fly-toml)
 - `fly autoscale set min=2 max=4`

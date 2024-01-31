@@ -4,7 +4,7 @@ from .vector_store import FaissMap
 def get_collection_summary(collection: str):
     my_db_dir = db_dir(collection)
 
-    search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
+    search_index = FaissMap.load_local(my_db_dir, get_embedding_fn(collection))
 
     # Get all document IDs
     all_doc_ids = list(search_index.index_to_docstore_id.values())

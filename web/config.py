@@ -1,7 +1,8 @@
 import os
 from typing import Union
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from .utils import safe_dir_append
+from .llm import LLMFactory
 
 
 def prefix(path: str) -> str:
@@ -9,16 +10,8 @@ def prefix(path: str) -> str:
     return os.path.join(root, path)
 
 
-def get_embedding_fn():
-    if "OPENAI_API_KEY" in os.environ:
-        from langchain.embeddings.openai import OpenAIEmbeddings
-
-        return OpenAIEmbeddings()
-    else:
-        from langchain.embeddings import TensorflowHubEmbeddings
-
-        url = "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
-        return TensorflowHubEmbeddings(model_url=url)
+def get_embedding_fn(collection: str = None):
+    return LLMFactory.createEmbeddingFn(collection)
 
 
 def env_dir(env, dir, collection: str = None):
@@ -57,6 +50,7 @@ def sqlite_dir(collection: str = None):
 class Settings(BaseSettings):
     # api keys
     openai_api_key: Union[str, None] = None
+    azure_openai_api_key: Union[str, None] = None
     knowledge_api_key: Union[str, None] = None
     # data dirs
     root_dir: str = '/'
