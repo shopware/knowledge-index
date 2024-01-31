@@ -3,6 +3,7 @@ import os
 from langchain.llms import OpenAI, AzureOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings.azure_openai import AzureOpenAIEmbeddings
+from langchain.embeddings import TensorflowHubEmbeddings
 
 class LLMFactory:
     def createLLM(model_name: str, collection: str = None):
@@ -12,18 +13,18 @@ class LLMFactory:
             return collections.get(collection)["llm"](model_name)
         
         # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-        max_tokens = 1024 # 512
-        max_tokens = -1
-        #batch_size = 5
-
         return OpenAI(
             temperature=0.0,
-            max_tokens=max_tokens,
+            max_tokens=-1, # 1024, 512
             model_name=model_name,
             #batch_size=batch_size
         )
     
     def createEmbeddingFn(collection: str = None):
+        if "OPENAI_API_KEY" not in os.environ:
+            print("Using Tensorflow")
+            return TensorflowHubEmbeddings(model_url="https://tfhub.dev/google/universal-sentence-encoder-multilingual/3")
+        
         collections = collections_config()
         
         if collection in collections:
@@ -43,6 +44,10 @@ def collections_config():
                 
                 temperature=0.0,
             ),
-            "embeddings": AzureOpenAIEmbeddings,
+            "embeddings": lambda: AzureOpenAIEmbeddings(),
+        },
+        "tensorflow": {
+            "llm": lambda model: None,
+            "embeddings": lambda: TensorflowHubEmbeddings(),
         }
     }

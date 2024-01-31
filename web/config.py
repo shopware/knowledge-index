@@ -11,13 +11,6 @@ def prefix(path: str) -> str:
 
 
 def get_embedding_fn(collection: str = None):
-    if "OPENAI_API_KEY" not in os.environ:
-        print("Using Tensorflow")
-        from langchain.embeddings import TensorflowHubEmbeddings
-
-        url = "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
-        return TensorflowHubEmbeddings(model_url=url)
-
     return LLMFactory.createEmbeddingFn(collection)
 
 
