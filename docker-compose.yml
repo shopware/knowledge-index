@@ -21,8 +21,6 @@ services:
     image: "${WEB_IMAGE:-ai-ml-web:latest}"
     environment:
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
-      AZURE_OPENAI_API_KEY: "${AZURE_OPENAI_API_KEY}"
-      AZURE_OPENAI_ENDPOINT: "${AZURE_OPENAI_ENDPOINT}"
       KNOWLEDGE_API_KEY: "${KNOWLEDGE_API_KEY}"
       POSTHOG_PROJECT_API_KEY: "${POSTHOG_PROJECT_API_KEY}"
     ports:
