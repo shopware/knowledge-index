@@ -38,7 +38,7 @@ class CollectionParam(BaseModel):
     )
 
     class Config:
-        json_schema_extra = {
+        schema_extra = {
             "example": {
                 "default": {"collection": None},
                 "standard": {"collection": "mycollection123"},
@@ -59,7 +59,7 @@ class FiltersParam(BaseModel):
 
 class PostQueryParams(CollectionParam, SearchParam):
     class Config:
-        json_schema_extra = {
+        schema_extra = {
             "example": {
                 "default": {"search": "my search keywords", "collection": None},
                 "standard": {
@@ -84,7 +84,7 @@ class PostQueryParams(CollectionParam, SearchParam):
 
 class PostNeighboursParams(CollectionParam, FiltersParam, IdQuery):
     class Config:
-        json_schema_extra = {
+        schema_extra = {
             "example": {
                 "default": {"id": "my/document/foo", "collection": None},
                 "standard": {"id": "my/document/foo", "collection": "mycollection123"},

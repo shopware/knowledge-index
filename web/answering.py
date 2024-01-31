@@ -1,6 +1,7 @@
 from web.config import get_embedding_fn, db_dir, data_dir, sqlite_dir
 from web.vector_store import FaissMap
 
+from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQAWithSourcesChain, RetrievalQA, LLMChain, ConversationalRetrievalChain
 from langchain.chains.question_answering import load_qa_chain
@@ -12,7 +13,6 @@ from langchain.cache import SQLiteCache
 from langchain.globals import set_llm_cache
 
 from .tracking import send_event
-from .llm import LLMFactory
 
 import os
 import hashlib
@@ -22,7 +22,7 @@ async def generate_answer(question: str, collection):
     my_db_dir = db_dir(collection)
     my_data_dir = data_dir(collection)
 
-    search_index = FaissMap.load_local(my_db_dir, get_embedding_fn(collection))
+    search_index = FaissMap.load_local(my_db_dir, get_embedding_fn())
     
     answeringFactory = AnsweringFactory()
     modelFactory = ModelFactory()
@@ -45,7 +45,7 @@ async def generate_answer(question: str, collection):
             instances = instances + 1
             mode = 'stuffedprompt'
             #mode = 'noprompt'
-            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo", collection)
+            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo")
 
             output = instance.reformat(instance.run(question), my_data_dir)
         else:
@@ -69,7 +69,7 @@ async def generate_answer(question: str, collection):
                         try:
                             instances = instances + 1
                             # print("Matrix Q: " + q + " Model: " + model + " Mode: " + mode)
-                            instance = answeringFactory.create(mode, search_index, model, collection)
+                            instance = answeringFactory.create(mode, search_index, model)
 
                             response = instance.reformat(instance.run(q), my_data_dir)
                             response["question"] = q
@@ -96,8 +96,18 @@ class ModelInterface:
     def getContext(self):
         return self.context
     
-    def getLLM(self, collection: str = None):
-        self.llm = LLMFactory.createLLM(self.name, collection)
+    def getLLM(self):
+        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
+        max_tokens = 1024 # 512
+        max_tokens = -1
+        #batch_size = 5
+        
+        self.llm = OpenAI(
+            temperature=0.0,
+            max_tokens=max_tokens,
+            model_name=self.name,
+            #batch_size=batch_size
+        )
 
         return self.llm
 
@@ -151,10 +161,9 @@ class GPT35TurboInstruct(ModelInterface):
 class AnsweringInterface:
     llm = None
 
-    def __init__(self, search_index, model, collection):
+    def __init__(self, search_index, model):
         self.search_index = search_index
         self.model = model
-        self.collection = collection
 
     def run(self, question: str):
         pass
@@ -168,7 +177,7 @@ class AnsweringInterface:
 
         modelFactory = ModelFactory()
 
-        self.llm = modelFactory.create(self.model).getLLM(self.collection)
+        self.llm = modelFactory.create(self.model).getLLM()
 
         return self.llm
 
@@ -232,13 +241,13 @@ class AnsweringFactory:
             #'chatbot': Chatbot,
         }
 
-    def create(self, name: str, search_index, model: str, collection: str) -> AnsweringInterface:
+    def create(self, name: str, search_index, model: str) -> AnsweringInterface:
         mapping = self.getMapper()
 
         selected_class = mapping.get(name)
 
         if selected_class:
-            return selected_class(search_index, model, collection)
+            return selected_class(search_index, model)
         
         raise ValueError("Incorrect answering implementation. Available: " + ','.join(mapping.keys()))
 
