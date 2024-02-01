@@ -9,28 +9,21 @@ class LLMFactory:
     def createLLM(model_name: str, collection: str = None):
         collections = collections_config()
         
-        if collection in collections:
-            return collections.get(collection)["llm"](model_name)
+        if collection not in collections:
+            collection = 'default'
         
-        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-        return OpenAI(
-            temperature=0.0,
-            max_tokens=-1, # 1024, 512
-            model_name=model_name,
-            #batch_size=batch_size
-        )
+        return collections.get(collection)["llm"](model_name)
     
     def createEmbeddingFn(collection: str = None):
         if "OPENAI_API_KEY" not in os.environ:
-            print("Using Tensorflow")
-            return TensorflowHubEmbeddings(model_url="https://tfhub.dev/google/universal-sentence-encoder-multilingual/3")
+            collection = 'tensorflow'
         
         collections = collections_config()
         
-        if collection in collections:
-            return collections.get(collection)["embeddings"]()
-        
-        return OpenAIEmbeddings()
+        if collection not in collections:
+            collection = 'default'
+            
+        return collections.get(collection)["embeddings"]()
     
     
 def collections_config():
@@ -40,14 +33,28 @@ def collections_config():
                 api_type = "azure",
                 api_key = os.getenv("AZURE_OPENAI_API_KEY"),
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                api_version = "2023-05-15",
-                
                 temperature=0.0,
+                #api_version = "2023-05-15",
             ),
-            "embeddings": lambda: AzureOpenAIEmbeddings(),
+            "embeddings": lambda: AzureOpenAIEmbeddings(
+                openai_api_type = "azure",
+                openai_api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+                azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+                model = "text-embedding-ada-002",
+                deployment = "azure-openai-ops-test-ada-002", # azure-openai-opt-test-gpt4
+            ),
         },
         "tensorflow": {
             "llm": lambda model: None,
-            "embeddings": lambda: TensorflowHubEmbeddings(),
-        }
+            "embeddings": lambda: TensorflowHubEmbeddings(model_url="https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"),
+        },
+        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
+        "default": {
+            "llm": lambda model = "gpt-3.5-turbo": OpenAI(
+                temperature=0.0,
+                max_tokens=-1,
+                model_name=model,
+            ),
+            "embeddings": lambda: OpenAIEmbeddings(),
+        },
     }
