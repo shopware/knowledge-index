@@ -33,7 +33,7 @@ def collections_config():
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
                 temperature = 0.0,
                 api_version = "2023-05-15",
-                deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+                deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT"), # "azure-openai-opt-test-gpt4"
                 #model_name = "gpt4"
             ),
             "embeddings": lambda: AzureOpenAIEmbeddings(
@@ -41,8 +41,8 @@ def collections_config():
                 openai_api_key = os.getenv("AZURE_OPENAI_API_KEY"),
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
                 #api_base = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                model = os.getenv("AZURE_OPENAI_DEPLOYMENT"), # "text-embedding-ada-002"
-                deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS") # "azure-openai-ops-test-ada-002", # azure-openai-opt-test-gpt4
+                model = "text-embedding-ada-002",
+                deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS") # "azure-openai-ops-test-ada-002"
             ),
         },
         "tensorflow": {
