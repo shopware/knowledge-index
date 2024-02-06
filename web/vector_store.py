@@ -13,7 +13,7 @@ from .cache import get_cache, set_cache
 from .exception import EmptyEmbeddings
 
 from langchain.callbacks import get_openai_callback
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from .tracking import send_event
 import asyncio
 

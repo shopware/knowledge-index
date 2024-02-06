@@ -1,8 +1,6 @@
 import os
 
-from langchain.llms import OpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from langchain_openai import OpenAI, OpenAIEmbeddings, AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain.embeddings import TensorflowHubEmbeddings
 
 class LLMFactory:
@@ -53,7 +51,7 @@ def collections_config():
         },
         # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
         "default": {
-            "llm": lambda model = "gpt-3.5-turbo": OpenAI(
+            "llm": lambda model = "gpt-3.5-turbo-instruct": OpenAI(
                 temperature=0.0,
                 max_tokens=-1,
                 model_name=model,

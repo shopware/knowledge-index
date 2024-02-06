@@ -45,7 +45,7 @@ async def generate_answer(question: str, collection):
             instances = instances + 1
             mode = 'stuffedprompt'
             #mode = 'noprompt'
-            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo", collection)
+            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo-instruct", collection)
 
             output = instance.reformat(instance.run(question), my_data_dir)
         else:
@@ -115,7 +115,7 @@ class ModelFactory:
             #"gpt-4-32k": GPT432k, # no access
             # "gpt-3.5-turbo-1106": GPT35Turbo1106, # weird results
             "gpt-3.5-turbo": GPT35Turbo,
-            #"gpt-3.5-turbo-instruct": GPT35TurboInstruct
+            "gpt-3.5-turbo-instruct": GPT35TurboInstruct
         }
 
     def create(self, name: str) -> ModelInterface:
