@@ -1,8 +1,6 @@
 import os
 
-from langchain.llms import OpenAI, AzureOpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.embeddings.azure_openai import AzureOpenAIEmbeddings
+from langchain_openai import OpenAI, OpenAIEmbeddings, AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain.embeddings import TensorflowHubEmbeddings
 
 class LLMFactory:
@@ -29,20 +27,22 @@ class LLMFactory:
 def collections_config():
     return {
         "shopware--operations-portal--test": {
-            "llm": lambda model: AzureOpenAI(
-                api_type = "azure",
-                api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+            "llm": lambda model: AzureChatOpenAI(
+                #api_type = "azure",
+                openai_api_key = os.getenv("AZURE_OPENAI_API_KEY"),
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                temperature=0.0,
-                #api_version = "2023-05-15",
+                temperature = 0.0,
+                api_version = "2023-05-15",
+                deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+                #model_name = "gpt4"
             ),
             "embeddings": lambda: AzureOpenAIEmbeddings(
                 openai_api_type = "azure",
                 openai_api_key = os.getenv("AZURE_OPENAI_API_KEY"),
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                api_base = os.getenv("AZURE_OPENAI_ENDPOINT"),
+                #api_base = os.getenv("AZURE_OPENAI_ENDPOINT"),
                 model = "text-embedding-ada-002",
-                deployment = "azure-openai-ops-test-ada-002", # azure-openai-opt-test-gpt4
+                deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS") # "azure-openai-ops-test-ada-002", # azure-openai-opt-test-gpt4
             ),
         },
         "tensorflow": {
@@ -51,7 +51,7 @@ def collections_config():
         },
         # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
         "default": {
-            "llm": lambda model = "gpt-3.5-turbo": OpenAI(
+            "llm": lambda model = "gpt-3.5-turbo-instruct": OpenAI(
                 temperature=0.0,
                 max_tokens=-1,
                 model_name=model,

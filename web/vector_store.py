@@ -13,7 +13,7 @@ from .cache import get_cache, set_cache
 from .exception import EmptyEmbeddings
 
 from langchain.callbacks import get_openai_callback
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from .tracking import send_event
 import asyncio
 
@@ -108,6 +108,7 @@ class FaissMap(VectorStore):
         tokens = 0
         model = kwargs.get('model')
         if (model):
+            # https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken
             print("Limiting to " + str(model.context))
             for doc in docs:
                 docTokens = len(doc[0].page_content) / 3.9
