@@ -41,7 +41,7 @@ def collections_config():
                 openai_api_key = os.getenv("AZURE_OPENAI_API_KEY"),
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
                 #api_base = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                model = "text-embedding-ada-002",
+                model = os.getenv("AZURE_OPENAI_DEPLOYMENT"), # "text-embedding-ada-002"
                 deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS") # "azure-openai-ops-test-ada-002", # azure-openai-opt-test-gpt4
             ),
         },
