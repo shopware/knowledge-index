@@ -108,6 +108,7 @@ class FaissMap(VectorStore):
         tokens = 0
         model = kwargs.get('model')
         if (model):
+            # https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken
             print("Limiting to " + str(model.context))
             for doc in docs:
                 docTokens = len(doc[0].page_content) / 3.9
