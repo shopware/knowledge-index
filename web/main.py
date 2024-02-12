@@ -26,6 +26,7 @@ from .answering import generate_answer
 from .summary import get_collection_summary
 from .results import Results, Success, SuccessWithMetadatas, Hello, Status
 
+from .tracking import send_event
 from .utils import safe_dir
 
 
@@ -201,7 +202,14 @@ def download_collection(
 
 @app.post("/question", tags=["question"])
 async def post_question(data: QuestionParams):
-    return await generate_answer(data.q, data.collection)
+    try:
+        return await generate_answer(data.q, data.collection)
+    except e:
+        await send_event('all', 'exception', {**{"question": data.q, "collection": data.collection, "exception": str(e), "endpoint": "POST:question"}})
+        return {
+            "sources": [],
+            "answer": 'Sorry, try again later.'
+        }
 
 
 # https://ahmadrosid.com/blog/deploy-fastapi-flyio
