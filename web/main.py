@@ -204,7 +204,7 @@ def download_collection(
 async def post_question(data: QuestionParams):
     try:
         return await generate_answer(data.q, data.collection)
-    except e:
+    except Exception as e:
         await send_event('all', 'exception', {**{"question": data.q, "collection": data.collection, "exception": str(e), "endpoint": "POST:question"}})
         return {
             "sources": [],

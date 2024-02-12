@@ -16,7 +16,7 @@ class IdQuery(BaseModel):
 
 class SearchParam(BaseModel):
     search: str = Body(
-        min_length=3, max_length=128, example={"search": "my search keywords"}
+        min_length=3, max_length=128, examples=[{"search": "my search keywords"}]
     )
 
 
@@ -30,11 +30,11 @@ class CollectionParam(BaseModel):
 #        min_length=3,
         max_length=128,
 #        regex="^(|[a-z0-9_]{3,40}|[a-z0-9_]{1,40}--[a-z0-9_]{1,40}|[a-z0-9_]{3,40}--[a-z0-9_]{1,40}--[a-z0-9_]{1,40})$",
-        regex="^(|[a-z0-9_\-]{3,128})$",
-        example={"collection": "test"},
+        pattern="^(|[a-z0-9_\-]{3,128})$",
+        examples=[{"collection": "test"}],
     )
     collections: List[str] = Body(
-        default=[], example={"collections": ["test1", "test2"]}
+        default=[], examples=[{"collections": ["test1", "test2"]}]
     )
 
     class Config:
