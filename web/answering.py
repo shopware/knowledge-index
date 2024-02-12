@@ -81,7 +81,7 @@ async def generate_answer(question: str, collection):
             output = results
 
         # track event
-        await send_event('all', 'qa', {**{"question": question, "collection": collection, "instances": instances}, **cb.__dict__})
+        await send_event('all', 'qa', {**{"question": question, "answer": output, "collection": collection, "instances": instances}, **cb.__dict__})
 
         output['stats'] = {
             'total_cost': cb.total_cost,
