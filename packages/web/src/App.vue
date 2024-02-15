@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header>
+  <header class="items-center justify-between">
     <nav class="MainNav">
       <RouterLink to="/">Home</RouterLink>
       <RouterLink to="/collections">Collections</RouterLink>
@@ -16,8 +16,22 @@ import { RouterLink, RouterView } from 'vue-router'
   <RouterView />
 </template>
 
-<style>
+<style lang="scss">
 .MainNav {
-  @apply flex gap-2;
+  @apply flex gap-4 items-center justify-center h-[4rem];
+
+  a {
+    @apply text-lg decoration-none text-inherit;
+    &.router-link-active,
+    &:hover {
+      @apply decoration-underline;
+    }
+  }
+}
+
+main {
+  margin: 0 auto;
+  max-width: 1024px;
+  width: 100%;
 }
 </style>

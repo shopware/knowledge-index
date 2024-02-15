@@ -33,6 +33,9 @@ class KnowledgeIndexAPI {
       },
       body: JSON.stringify(data)
     })
+    if (response.status !== 200) {
+      throw response;
+    }
     return response.json()
   }
 
