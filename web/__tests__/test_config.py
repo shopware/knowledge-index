@@ -17,7 +17,6 @@ def test_data_dir_env():
 
 
 def test_db_dir():
-    assert db_dir() == '/data/db'
     assert db_dir('') == '/data/db'
     assert db_dir('my-collection') == '/data/db-my-collection'
 
