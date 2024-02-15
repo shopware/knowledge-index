@@ -10,12 +10,7 @@ import { RouterLink, RouterView } from 'vue-router'
       <RouterLink to="/storage">Storage</RouterLink>
       <RouterLink to="/cache">Cache</RouterLink>
       <RouterLink to="/healthcheck">Healthcheck</RouterLink>
-      <RouterLink to="/me">Me</RouterLink>
     </nav>
-
-    <div>
-      <input type="text" placeholder="X-Shopware-Api-Key" />
-    </div>
   </header>
 
   <RouterView />

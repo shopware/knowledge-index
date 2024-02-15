@@ -25,7 +25,7 @@ const loadingRequest = async (
 }
 
 class KnowledgeIndexAPI {
-  async request(method: 'GET' | 'POST', url: string, data?: object) {
+  async request(method: 'GET' | 'POST' | 'DELETE', url: string, data?: object) {
     const configStore = useConfigStore()
     const response = await fetch(`${configStore.data.endpoint}${url}`, {
       headers: {
@@ -39,12 +39,15 @@ class KnowledgeIndexAPI {
   get(url: string) {
     return this.request('GET', url)
   }
+
   post(url: string, data: object) {
     return this.request('POST', url, data)
   }
-}
 
-const apiKI = new KnowledgeIndexAPI()
+  delete(url: string) {
+    return this.request('DELETE', url)
+  }
+}
 
 interface ILoadingState {
   loading: number
@@ -107,3 +110,5 @@ export const useCollectionStore = defineStore('collection', {
     }
   }
 })
+
+export const apiKI = new KnowledgeIndexAPI()

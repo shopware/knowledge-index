@@ -5,7 +5,6 @@ import CollectionsPage from '../page/CollectionsPage.vue'
 import StoragePage from '../page/StoragePage.vue'
 import CachePage from '../page/CachePage.vue'
 import HealthcheckPage from '../page/HealthcheckPage.vue'
-import MePage from '../page/MePage.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -40,11 +39,6 @@ const router = createRouter({
       name: 'healthcheck',
       component: HealthcheckPage
     },
-    {
-      path: '/me',
-      name: 'me',
-      component: MePage
-    }
   ]
 })
 
