@@ -208,7 +208,8 @@ async def post_question(data: QuestionParams):
         await send_event('all', 'exception', {**{"question": data.q, "collection": data.collection, "exception": str(e), "endpoint": "POST:question"}})
         return {
             "sources": [],
-            "answer": 'Sorry, try again later.'
+            "answer": 'Sorry, try again later.',
+            "exception": str(e)
         }
 
 
@@ -225,14 +226,14 @@ def healthcheck() -> Status:
 # /list/docs/
 # /static/docs/src/test.md
 # /download/docs/src/test.md
-static_path = Path("/data")
+static_path = "/data"
 app.mount("/static", StaticFiles(directory="/data", follow_symlink=True), name="static")
 
 # Enable directory listing
 @app.get("/list/{subpath:path}", include_in_schema=False)
 async def list_directory(subpath: str = ""):
     try:
-        full_path = Path(static_path / subpath)
+        full_path = safe_dir(static_path, subpath)
 
         # Get a list of all files in the directory
         file_list = [str(file.name) for file in full_path.iterdir() if file.is_file()]
@@ -247,7 +248,7 @@ async def list_directory(subpath: str = ""):
 async def download_file(filename: str):
     file_path = safe_dir(static_path, filename)
 
-    if not file_path.is_file():
+    if not Path(file_path).is_file():
         raise HTTPException(status_code=404, detail="File not found")
 
     # Use FileResponse with additional headers for forcing download

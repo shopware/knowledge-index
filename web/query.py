@@ -4,7 +4,7 @@ from .config import get_embedding_fn, db_dir
 from .vector_store import FaissMap
 
 
-def query(query: str, collection, num: int = 5):
+def query(query: str, collection: str, num: int = 5):
     db = FaissMap.load_local(db_dir(collection), get_embedding_fn(collection))
 
     results = db.similarity_search_with_score(query, num)
@@ -12,7 +12,7 @@ def query(query: str, collection, num: int = 5):
     return results
 
 
-def query_by_id(id: str, collection, num: int = 5):
+def query_by_id(id: str, collection: str, num: int = 5):
     db = FaissMap.load_local(db_dir(collection), get_embedding_fn(collection))
 
     results = db.similarity_search_by_id(id, num)
@@ -20,8 +20,7 @@ def query_by_id(id: str, collection, num: int = 5):
     return results
 
 
-
-def query_n_with_fallback(id: str, collection, num: int = 5, limit: int = 5, depth: int = 3, filters: Dict = {}):
+def query_n_with_fallback(id: str, collection: str, num: int = 5, limit: int = 5, depth: int = 3, filters: Dict = {}):
     try:
         results = query_by_id(id, collection, limit)
     except KeyError:

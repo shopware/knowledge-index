@@ -125,16 +125,6 @@ Upload .zip containing .md files.
 $ curl \
  -v \
  -F content=@test.zip \
- -H "X-Shopware-Api-Key: your-api-key" \
- https://ai-ml.fly.dev/upload-input
-```
-
-Or with custom collection.
-
-```bash
-$ curl \
- -v \
- -F content=@test.zip \
  -F collection=test \
  -H "X-Shopware-Api-Key: your-api-key" \
  https://ai-ml.fly.dev/upload-input
@@ -147,15 +137,6 @@ Ingest uploaded documents.
 ```bash
 $ curl \
  -X POST \
- -H "X-Shopware-Api-Key: your-api-key" \
- https://ai-ml.fly.dev/ingest
-```
-
-Or with custom collection.
-
-```bash
-$ curl \
- -X POST \
  --data '{"collection":"test"}' \
  -H "Content-Type: application/json" \
  -H "X-Shopware-Api-Key: your-api-key" \
@@ -164,17 +145,7 @@ $ curl \
 
 ## Search
 
-Search default collection.
-
-```bash
-$ curl \
- -X POST \
- --data '{"search":"keywords"}' \
- -H "Content-Type: application/json" \
- https://ai-ml.fly.dev/query
-```
-
-Search custom collection.
+Search a collection.
 
 ```bash
 $ curl \
@@ -185,17 +156,9 @@ $ curl \
 ```
 
 ## Neighbours
-
-Search default collection.
-
-```bash
-$ curl \
- -X POST \
- --data '{"id":"document/identifier/foo"}' \
- https://ai-ml.fly.dev/neighbours
 ```
 
-Search custom collection.
+Search a collection.
 
 ```bash
 $ curl \
@@ -212,7 +175,7 @@ Ask AI engine to generate an answer to the question.
 ```bash
 $ curl \
  -X POST \
- --data '{"q":"What is Shopware?"}' \
+ --data '{"q":"What is Shopware?","collection":"test"}' \
  https://ai-ml.fly.dev/question
 ```
 
