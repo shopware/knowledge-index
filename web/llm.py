@@ -4,7 +4,7 @@ from langchain_openai import OpenAI, OpenAIEmbeddings, AzureChatOpenAI, AzureOpe
 from langchain.embeddings import TensorflowHubEmbeddings
 
 class LLMFactory:
-    def createLLM(model_name: str, collection: str = None):
+    def createLLM(model_name: str, collection: str):
         collections = collections_config()
         
         if collection not in collections:
@@ -12,7 +12,7 @@ class LLMFactory:
         
         return collections.get(collection)["llm"](model_name)
     
-    def createEmbeddingFn(collection: str = None):
+    def createEmbeddingFn(collection: str):
         if "OPENAI_API_KEY" not in os.environ:
             collection = 'tensorflow'
         

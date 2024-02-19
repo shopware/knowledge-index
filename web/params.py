@@ -25,7 +25,7 @@ class URLParam(BaseModel):
 
 
 class CollectionParam(BaseModel):
-    collection: Optional[str] = Body(
+    collection: str = Body(
         default=None,
 #        min_length=3,
         max_length=128,
@@ -40,10 +40,9 @@ class CollectionParam(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "default": {"collection": None},
-                "standard": {"collection": "mycollection123"},
-                "grouped": {"collection": "mycollection123--foo"},
-                "repository": {"collection": "shopware--docs--main"},
+                "default": {"collection": "mycollection123"},
+                "repository": {"collection": "mycollection123--foo"},
+                "branch": {"collection": "shopware--docs--main"},
             }
         }
 
@@ -61,8 +60,7 @@ class PostQueryParams(CollectionParam, SearchParam):
     class Config:
         json_schema_extra = {
             "example": {
-                "default": {"search": "my search keywords", "collection": None},
-                "standard": {
+                "default": {
                     "search": "my search keywords",
                     "collection": "mycollection123",
                 },
@@ -86,8 +84,7 @@ class PostNeighboursParams(CollectionParam, FiltersParam, IdQuery):
     class Config:
         json_schema_extra = {
             "example": {
-                "default": {"id": "my/document/foo", "collection": None},
-                "standard": {"id": "my/document/foo", "collection": "mycollection123"},
+                "default": {"id": "my/document/foo", "collection": "mycollection123"},
                 "grouped": {
                     "id": "my/document/foo",
                     "collection": "mycollection123--foo",

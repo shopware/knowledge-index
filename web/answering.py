@@ -18,7 +18,7 @@ import os
 import hashlib
 from pathlib import Path
 
-async def generate_answer(question: str, collection):
+async def generate_answer(question: str, collection: str):
     my_db_dir = db_dir(collection)
     my_data_dir = data_dir(collection)
 
@@ -101,7 +101,7 @@ class ModelInterface:
     def getContext(self):
         return self.context
     
-    def getLLM(self, collection: str = None):
+    def getLLM(self, collection: str):
         self.llm = LLMFactory.createLLM(self.name, collection)
 
         return self.llm

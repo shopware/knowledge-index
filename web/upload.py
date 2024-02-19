@@ -9,7 +9,7 @@ from fastapi import UploadFile
 
 from .config import data_dir
 
-async def upload(content: UploadFile, collection):
+async def upload(content: UploadFile, collection: str):
     input_zip = "input.zip"
     output_dir = data_dir(collection)
 

@@ -7,13 +7,14 @@ on:
     branches:
       - main
 jobs:
+
   test:
-    name: test
+    name: Test AI
     runs-on: ubuntu-latest
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build and test
         timeout-minutes: 10
@@ -26,7 +27,7 @@ jobs:
           until [ $(docker inspect -f "{{json .State.Status }}" $(docker ps -a --filter ancestor=ai-ml-web --format="{{.ID}}" | head -n 1)) == '"running"' ]; do echo "Waiting for container to start..." && sleep 1; done
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") pytest web
           docker container exec -i $(docker ps -f name=ai-ml_web --format "{{.ID}}") ruff check web/
-      
+
       - uses: superfly/flyctl-actions/setup-flyctl@master
         if: ${{ github.ref == 'refs/heads/main' }}
 
@@ -36,3 +37,49 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
         run: flyctl deploy --local-only --wait-timeout=600 -i ai-ml-web:latest
+  
+  test-ui:
+    name: Test UI
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.8
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+        
+      - name: Build
+        run: |
+          pnpm -C ./packages/web/ i
+          pnpm -C ./packages/web/ lint
+          pnpm -C ./packages/web/ format
+          pnpm -C ./packages/web/ test:unit
+          pnpm -C ./packages/web/ build-only
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy
+        run: |
+          VERCEL_ENV="preview"
+          VERCEL_ENV_FLAG=""
+          if [[ "${{github.ref}}" == "refs/heads/main" ]]; then
+            VERCEL_ENV="production"
+            VERCEL_ENV_FLAG="--prod"
+          fi
+          
+          vercel --cwd ./packages/web/ pull --yes --environment=$VERCEL_ENV --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
+          vercel --cwd ./packages/web/ build ./dist --token=${{ secrets.VERCEL_TOKEN }} $VERCEL_ENV_FLAG
+          vercel --cwd ./packages/web/ deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} $VERCEL_ENV_FLAG > ./vercel.env

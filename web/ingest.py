@@ -110,7 +110,7 @@ def add_metadata_to_docs(docs, current_dir):
         doc.metadata["version"] = get_doc_version(doc)
 
 
-def ingest_url(url, collection):
+def ingest_url(url, collection: str):
     loader = UnstructuredURLLoader(filter_working_urls(get_link_tree(url)))
     docs = loader.load()
 
@@ -137,7 +137,7 @@ def ingest_url(url, collection):
     return True
 
 
-def ingest(collection) -> FaissMap:
+def ingest(collection: str) -> FaissMap:
     current_dir = data_dir(collection)
     ingested_dir = current_dir + "_ingested"
 
@@ -177,7 +177,7 @@ def get_doc_from_file(file):
     return Document(page_content=content, metadata=metadata)
 
 
-def ingest_diff(collection):
+def ingest_diff(collection: str):
     current_dir = data_dir(collection)
     ingested_dir = current_dir + "_ingested"
 
