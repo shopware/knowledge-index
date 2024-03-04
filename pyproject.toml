@@ -8,7 +8,7 @@ packages = [{include = "web"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-langchain = "^0.0.354"
+langchain = "^0.1.0"
 faiss-cpu = "^1.7.4"
 unstructured = "^0.11.8"
 libmagic = "^1.0"
