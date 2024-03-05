@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
+import tiktoken
 
 from langchain.vectorstores.base import VectorStore
 from langchain.docstore.document import Document
@@ -103,6 +104,12 @@ class FaissMap(VectorStore):
             
             docs.append((doc, scores[0][j]))
 
+        def num_tokens_from_string(string: str, model_name: str) -> int:
+            """Returns the number of tokens in a text string."""
+            encoding = tiktoken.encoding_for_model(model_name)
+            num_tokens = len(encoding.encode(string))
+            return num_tokens
+
         # limit by context size
         finalDocs = []
         tokens = 0
@@ -114,7 +121,8 @@ class FaissMap(VectorStore):
             # https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken
             print("Limiting to " + str(model.context))
             for doc in docs:
-                docTokens = len(doc[0].page_content) / 3.9
+                #docTokens = len(doc[0].page_content) / 3.9
+                docTokens = num_tokens_from_string(doc[0].page_content, model.name)
                 print("New doc has " + str(docTokens) + " tokens")
 
                 if (docTokens + tokens + completition) > model.context:

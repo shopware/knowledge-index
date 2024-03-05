@@ -8,12 +8,13 @@ packages = [{include = "web"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-langchain = "^0.1.0"
+langchain = "^0.1.11"
 faiss-cpu = "^1.7.4"
 unstructured = "^0.11.8"
 libmagic = "^1.0"
 openai = "^1.10.0"
-langchain-openai = "^0.0.5"
+langchain-openai = "^0.0.8"
+langchain-community = "^0.0.25"
 tiktoken = "^0.5.2"
 fastapi = "^0.109.1"
 pydantic = "^2.5.3"
