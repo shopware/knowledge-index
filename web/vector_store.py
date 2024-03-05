@@ -107,6 +107,9 @@ class FaissMap(VectorStore):
         finalDocs = []
         tokens = 0
         model = kwargs.get('model')
+        # This model's maximum context length is 4097 tokens, however you requested 4427 tokens
+        # (4171 in your prompt; 256 for the completion). Please reduce your prompt; or completion length.
+        completition = 256
         if (model):
             # https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken
             print("Limiting to " + str(model.context))
@@ -114,7 +117,7 @@ class FaissMap(VectorStore):
                 docTokens = len(doc[0].page_content) / 3.9
                 print("New doc has " + str(docTokens) + " tokens")
 
-                if docTokens + tokens > model.context:
+                if (docTokens + tokens + completition) > model.context:
                     print("Break, limit exceeded")
                     break
                 
