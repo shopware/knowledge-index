@@ -15,9 +15,10 @@ WORKDIR /code
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-root --no-cache --no-interaction $POETRY_ARG
 
-RUN python -c "import nltk; nltk.download('wordnet')"
-RUN python -c "import nltk; nltk.download('punkt')"
-RUN python -c "import nltk; nltk.download('averaged_perceptron_tagger')"
+#RUN python -m nltk.downloader all
+#RUN python -c "import nltk; nltk.download('wordnet')"
+#RUN python -c "import nltk; nltk.download('punkt')"
+#RUN python -c "import nltk; nltk.download('averaged_perceptron_tagger')"
 
 COPY ./ /code
 
