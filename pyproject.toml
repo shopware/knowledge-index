@@ -10,7 +10,7 @@ packages = [{include = "web"}]
 python = ">=3.10,<3.12"
 langchain = "^0.1.11"
 faiss-cpu = "^1.7.4"
-unstructured = "^0.11.8"
+unstructured = "^0.14.3"
 libmagic = "^1.0"
 openai = "^1.10.0"
 langchain-openai = "^0.0.8"
