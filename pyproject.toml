@@ -46,7 +46,7 @@ python-slugify = "^8.0.1"
 cli = "cli.main:app"
 
 [tool.poetry.group.dev.dependencies]
-transformers = "^4.36.2"
+transformers = "^4.48.0"
 
 [build-system]
 requires = ["poetry-core"]
