@@ -22,8 +22,12 @@ def get_cache(key: str):
         return None
 
     # read cache
-    with open(cache_file, "rb") as f:
-        return pickle.load(f)
+    try:
+        with open(cache_file, "rb") as f:
+            return pickle.load(f)
+    except Exception as e:
+        print(e)
+        return None
 
 
 def set_cache(key: str, value):
