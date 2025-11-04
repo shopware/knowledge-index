@@ -99,6 +99,7 @@ class PostNeighboursParams(CollectionParam, FiltersParam, IdQuery):
 
 class QuestionParams(CollectionParam):
     q: str
+    model: str = Body(default="gpt-3.5-turbo-instruct")
 
 
 class PostURLIngestParams(CollectionParam, URLParam):

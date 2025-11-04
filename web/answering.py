@@ -18,7 +18,7 @@ import os
 import hashlib
 from pathlib import Path
 
-async def generate_answer(question: str, collection: str):
+async def generate_answer(question: str, collection: str, model: str = "gpt-3.5-turbo-instruct"):
     my_db_dir = db_dir(collection)
     my_data_dir = data_dir(collection)
 
@@ -45,7 +45,7 @@ async def generate_answer(question: str, collection: str):
             instances = instances + 1
             mode = 'stuffedprompt'
             #mode = 'noprompt'
-            instance = answeringFactory.create(mode, search_index, "gpt-3.5-turbo-instruct", collection)
+            instance = answeringFactory.create(mode, search_index, model, collection)
 
             output = instance.reformat(instance.run(question), my_data_dir)
         else:
@@ -65,17 +65,17 @@ async def generate_answer(question: str, collection: str):
             results = {}
             for mode in answeringFactory.getMapper():
                 for q in questions:
-                    for model in modelFactory.getMapper():
+                    for model_iter in modelFactory.getMapper():
                         try:
                             instances = instances + 1
-                            # print("Matrix Q: " + q + " Model: " + model + " Mode: " + mode)
-                            instance = answeringFactory.create(mode, search_index, model, collection)
+                            # print("Matrix Q: " + q + " Model: " + model_iter + " Mode: " + mode)
+                            instance = answeringFactory.create(mode, search_index, model_iter, collection)
 
                             response = instance.reformat(instance.run(q), my_data_dir)
                             response["question"] = q
-                            results[mode + ":" + model + ":" + hashlib.sha1(q.encode('utf-8')).hexdigest()] = response
+                            results[mode + ":" + model_iter + ":" + hashlib.sha1(q.encode('utf-8')).hexdigest()] = response
                         except Exception as e:
-                            results[mode + ":" + model + ":" + hashlib.sha1(q.encode('utf-8')).hexdigest()] = str(e)
+                            results[mode + ":" + model_iter + ":" + hashlib.sha1(q.encode('utf-8')).hexdigest()] = str(e)
                             print(e)
 
             output = results
@@ -115,7 +115,8 @@ class ModelFactory:
             #"gpt-4-32k": GPT432k, # no access
             # "gpt-3.5-turbo-1106": GPT35Turbo1106, # weird results
             "gpt-3.5-turbo": GPT35Turbo,
-            "gpt-3.5-turbo-instruct": GPT35TurboInstruct
+            "gpt-3.5-turbo-instruct": GPT35TurboInstruct,
+            "gpt-4.1-mini": GPT41Mini
         }
 
     def create(self, name: str) -> ModelInterface:
@@ -151,6 +152,10 @@ class GPT35Turbo(ModelInterface):
 class GPT35TurboInstruct(ModelInterface):
     name = "gpt-3.5-turbo-instruct"
     context = 4096
+
+class GPT41Mini(ModelInterface):
+    name = "gpt-4.1-mini"
+    context = 32768
 
 # START ANSWERS
 class AnsweringInterface:
