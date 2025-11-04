@@ -203,7 +203,7 @@ def download_collection(
 @app.post("/question", tags=["question"])
 async def post_question(data: QuestionParams):
     try:
-        return await generate_answer(data.q, data.collection)
+        return await generate_answer(data.q, data.collection, data.model)
     except Exception as e:
         await send_event('all', 'exception', {**{"question": data.q, "collection": data.collection, "exception": str(e), "endpoint": "POST:question"}})
         return {
