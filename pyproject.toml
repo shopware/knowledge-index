@@ -23,7 +23,7 @@ uvicorn = "^0.25.0"
 gunicorn = "^23.0.0"
 httpcore = {extras = ["http2"], version = "^1.0.2"}
 httpx = "^0.26.0"
-python-multipart = "^0.0.18"
+python-multipart = "^0.0.22"
 aiofiles = "^23.2.1"
 beautifulsoup4 = "^4.12.2"
 lxml = "^5.0.0"
