@@ -1943,14 +1943,14 @@ files = [
 
 [[package]]
 name = "nltk"
-version = "3.9"
+version = "3.9.3"
 description = "Natural Language Toolkit"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "nltk-3.9-py3-none-any.whl", hash = "sha256:d17863e861bb33ac617893329d71d06a3dfb7e3eb9ee0b8105281c53944a45a1"},
-    {file = "nltk-3.9.tar.gz", hash = "sha256:e98acac454407fa38b76cccb29208d377731cf7fab68f323754a3681f104531f"},
+    {file = "nltk-3.9.3-py3-none-any.whl", hash = "sha256:60b3db6e9995b3dd976b1f0fa7dec22069b2677e759c28eb69b62ddd44870522"},
+    {file = "nltk-3.9.3.tar.gz", hash = "sha256:cb5945d6424a98d694c2b9a0264519fab4363711065a46aa0ae7a2195b92e71f"},
 ]
 
 [package.dependencies]
