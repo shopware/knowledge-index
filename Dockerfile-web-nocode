@@ -1,4 +1,4 @@
-FROM python:3.10-bullseye
+FROM python:3.10-bookworm
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN ln -s /root/.local/share/pypoetry/venv/bin/poetry /usr/local/bin/
