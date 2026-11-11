@@ -13,12 +13,13 @@ from langchain.globals import set_llm_cache
 
 from .tracking import send_event
 from .llm import LLMFactory
+from .model_config import CHAT_MODEL, CHAT_MODEL_CONTEXT
 
 import os
 import hashlib
 from pathlib import Path
 
-async def generate_answer(question: str, collection: str, model: str = "gpt-3.5-turbo-instruct"):
+async def generate_answer(question: str, collection: str, model: str = CHAT_MODEL):
     my_db_dir = db_dir(collection)
     my_data_dir = data_dir(collection)
 
@@ -110,13 +111,7 @@ class ModelFactory:
 
     def getMapper(self):
         return {
-            # "gpt-4-1106-preview": GPT41106Preview, # not for production
-            # "gpt-4": GPT4, # "I don't know"
-            #"gpt-4-32k": GPT432k, # no access
-            # "gpt-3.5-turbo-1106": GPT35Turbo1106, # weird results
-            "gpt-3.5-turbo": GPT35Turbo,
-            "gpt-3.5-turbo-instruct": GPT35TurboInstruct,
-            "gpt-4.1-mini": GPT41Mini
+            CHAT_MODEL: GPT6Luna,
         }
 
     def create(self, name: str) -> ModelInterface:
@@ -129,33 +124,9 @@ class ModelFactory:
         
         raise ValueError("Incorrect model implementation. Available: " + ','.join(mapping.keys()))
 
-class GPT41106Preview(ModelInterface):
-    name = "gpt-4-1106-preview"
-    context = 128000
-
-class GPT4(ModelInterface):
-    name = "gpt-4"
-    context = 8192
-
-class GPT432k(ModelInterface):
-    name = "gpt-4-32k"
-    context = 32768
-
-class GPT35Turbo1106(ModelInterface):
-    name = "gpt-3.5-turbo-1106"
-    context = 16385
-
-class GPT35Turbo(ModelInterface):
-    name = "gpt-3.5-turbo"
-    context = 4096
-
-class GPT35TurboInstruct(ModelInterface):
-    name = "gpt-3.5-turbo-instruct"
-    context = 4096
-
-class GPT41Mini(ModelInterface):
-    name = "gpt-4.1-mini"
-    context = 32768
+class GPT6Luna(ModelInterface):
+    name = CHAT_MODEL
+    context = CHAT_MODEL_CONTEXT
 
 # START ANSWERS
 class AnsweringInterface:

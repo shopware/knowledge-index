@@ -1,6 +1,8 @@
-from typing import List, Optional, Dict
+from typing import Dict, List, Literal, Optional
 from fastapi import Body
 from pydantic import BaseModel
+
+from .model_config import CHAT_MODEL
 
 
 class IdQuery(BaseModel):
@@ -99,7 +101,7 @@ class PostNeighboursParams(CollectionParam, FiltersParam, IdQuery):
 
 class QuestionParams(CollectionParam):
     q: str
-    model: str = Body(default="gpt-3.5-turbo-instruct")
+    model: Literal["gpt-6-luna"] = Body(default=CHAT_MODEL)
 
 
 class PostURLIngestParams(CollectionParam, URLParam):

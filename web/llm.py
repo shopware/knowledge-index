@@ -1,61 +1,96 @@
 import os
 
-from langchain_openai import OpenAI, OpenAIEmbeddings, AzureChatOpenAI, AzureOpenAIEmbeddings
-from langchain.embeddings import TensorflowHubEmbeddings
+from langchain_community.embeddings import TensorflowHubEmbeddings
+from langchain_openai import (
+    AzureChatOpenAI,
+    AzureOpenAIEmbeddings,
+    ChatOpenAI,
+    OpenAIEmbeddings,
+)
+
+from .model_config import (
+    CHAT_MODEL,
+    CHAT_REASONING_EFFORT,
+    CHAT_TEMPERATURE,
+    EMBEDDING_MODEL,
+    ModelConfigurationError,
+    get_azure_openai_config,
+)
+
+
+AZURE_COLLECTION = "shopware--operations-portal--test"
+
+
+def _create_azure_llm(model: str):
+    config = get_azure_openai_config()
+    if model != config.model:
+        raise ModelConfigurationError(
+            f"Azure OpenAI deployment is configured for {config.model!r}, got {model!r}"
+        )
+
+    return AzureChatOpenAI(
+        api_key=config.api_key,
+        azure_endpoint=config.endpoint,
+        api_version=config.api_version,
+        azure_deployment=config.deployment,
+        model=config.model,
+        temperature=CHAT_TEMPERATURE,
+        reasoning_effort=CHAT_REASONING_EFFORT,
+    )
+
+
+def _create_azure_embeddings():
+    config = get_azure_openai_config()
+    return AzureOpenAIEmbeddings(
+        api_key=config.api_key,
+        azure_endpoint=config.endpoint,
+        api_version=config.api_version,
+        azure_deployment=config.embeddings_deployment,
+        model=EMBEDDING_MODEL,
+    )
+
 
 class LLMFactory:
+    @staticmethod
     def createLLM(model_name: str, collection: str):
         collections = collections_config()
-        
+
         if collection not in collections:
-            collection = 'default'
-        
-        return collections.get(collection)["llm"](model_name)
-    
+            collection = "default"
+
+        return collections[collection]["llm"](model_name)
+
+    @staticmethod
     def createEmbeddingFn(collection: str):
-        if "OPENAI_API_KEY" not in os.environ:
-            collection = 'tensorflow'
-        
+        if collection != AZURE_COLLECTION and "OPENAI_API_KEY" not in os.environ:
+            collection = "tensorflow"
+
         collections = collections_config()
-        
+
         if collection not in collections:
-            collection = 'default'
-            
-        return collections.get(collection)["embeddings"]()
-    
-    
+            collection = "default"
+
+        return collections[collection]["embeddings"]()
+
+
 def collections_config():
     return {
-        "shopware--operations-portal--test": {
-            "llm": lambda model: AzureChatOpenAI(
-                #api_type = "azure",
-                openai_api_key = os.getenv("AZURE_OPENAI_API_KEY"),
-                azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                temperature = 0.0,
-                api_version = "2023-05-15",
-                deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT"), # "azure-openai-opt-test-gpt4"
-                #model_name = "gpt4"
-            ),
-            "embeddings": lambda: AzureOpenAIEmbeddings(
-                openai_api_type = "azure",
-                openai_api_key = os.getenv("AZURE_OPENAI_API_KEY"),
-                azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                #api_base = os.getenv("AZURE_OPENAI_ENDPOINT"),
-                model = "text-embedding-ada-002",
-                deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS") # "azure-openai-ops-test-ada-002"
-            ),
+        AZURE_COLLECTION: {
+            "llm": _create_azure_llm,
+            "embeddings": _create_azure_embeddings,
         },
         "tensorflow": {
             "llm": lambda model: None,
-            "embeddings": lambda: TensorflowHubEmbeddings(model_url="https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"),
-        },
-        # https://python.langchain.com/docs/use_cases/question_answering/vector_db_qa
-        "default": {
-            "llm": lambda model = "gpt-3.5-turbo-instruct": OpenAI(
-                temperature=0.0,
-                max_tokens=-1,
-                model_name=model,
+            "embeddings": lambda: TensorflowHubEmbeddings(
+                model_url="https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
             ),
-            "embeddings": lambda: OpenAIEmbeddings(),
+        },
+        "default": {
+            "llm": lambda model=CHAT_MODEL: ChatOpenAI(
+                model=model,
+                temperature=CHAT_TEMPERATURE,
+                reasoning_effort=CHAT_REASONING_EFFORT,
+            ),
+            "embeddings": lambda: OpenAIEmbeddings(model=EMBEDDING_MODEL),
         },
     }
