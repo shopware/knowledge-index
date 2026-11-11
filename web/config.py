@@ -51,6 +51,11 @@ class Settings(BaseSettings):
     # api keys
     openai_api_key: Union[str, None] = None
     azure_openai_api_key: Union[str, None] = None
+    azure_openai_endpoint: Union[str, None] = None
+    azure_openai_deployment: Union[str, None] = None
+    azure_openai_deployment_embeddings: Union[str, None] = None
+    azure_openai_model: Union[str, None] = None
+    azure_openai_api_version: Union[str, None] = None
     knowledge_api_key: Union[str, None] = None
     # data dirs
     root_dir: str = '/'

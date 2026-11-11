@@ -21,3 +21,12 @@ def test_read_healthcheck():
     assert json["status"] == "ok"
     assert json["status"] == "ok"
     assert "hash" in json
+
+
+def test_question_rejects_unsupported_model_before_calling_provider():
+    response = client.post(
+        "/question",
+        json={"q": "How do I create a product?", "collection": "", "model": "gpt-4"},
+    )
+
+    assert response.status_code == 422

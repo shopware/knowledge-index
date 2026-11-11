@@ -106,8 +106,11 @@ class FaissMap(VectorStore):
 
         def num_tokens_from_string(string: str, model_name: str) -> int:
             """Returns the number of tokens in a text string."""
-            # All models used in this codebase (gpt-4, gpt-3.5-turbo, etc.) use cl100k_base
-            encoding = tiktoken.get_encoding("cl100k_base")
+            try:
+                encoding = tiktoken.encoding_for_model(model_name)
+            except KeyError:
+                # Keep retrieval available if tiktoken does not yet know a new model.
+                encoding = tiktoken.get_encoding("o200k_base")
             num_tokens = len(encoding.encode(string))
             return num_tokens
 

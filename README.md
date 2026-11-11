@@ -12,6 +12,8 @@
 - `AZURE_OPENAI_ENDPOINT` (optional)
 - `AZURE_OPENAI_DEPLOYMENT` (optional)
 - `AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS` (optional)
+- `AZURE_OPENAI_MODEL` (required with Azure, must be `gpt-6-luna`)
+- `AZURE_OPENAI_API_VERSION` (required with Azure)
 - `WEB_IMAGE` (optional), default: `ai-ml-web:latest` - you can skip building your local image and use pre-built
   no-code image `bojanrajh/python:latest`
 
@@ -25,6 +27,8 @@ $ export AZURE_OPENAI_API_KEY="..."
 $ export AZURE_OPENAI_ENDPOINT="..."
 $ export AZURE_OPENAI_DEPLOYMENT="..."
 $ export AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS="..."
+$ export AZURE_OPENAI_MODEL="gpt-6-luna"
+$ export AZURE_OPENAI_API_VERSION="..."
 $ export WEB_IMAGE="bojanrajh/python:latest"
 ```
 
@@ -173,10 +177,14 @@ $ curl \
 
 Ask AI engine to generate an answer to the question.
 
+The supported chat model is `gpt-6-luna`. The `model` field is optional and
+defaults to that value; any other value is rejected with HTTP 422.
+
 ```bash
 $ curl \
  -X POST \
- --data '{"q":"What is Shopware?","collection":"test"}' \
+ -H "Content-Type: application/json" \
+ --data '{"q":"What is Shopware?","collection":"test","model":"gpt-6-luna"}' \
  https://ai-ml.fly.dev/question
 ```
 
@@ -205,5 +213,7 @@ Fly.io deployment:
 - `fly secrets set AZURE_OPENAI_ENDPOINT="..."` - optional
 - `fly secrets set AZURE_OPENAI_DEPLOYMENT="..."` - optional
 - `fly secrets set AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS="..."` - optional
+- `fly secrets set AZURE_OPENAI_MODEL="gpt-6-luna"` - required with Azure
+- `fly secrets set AZURE_OPENAI_API_VERSION="..."` - required with Azure
 - `fly volumes create data --region ams --size 1` + see [./fly-toml](./fly-toml)
 - `fly autoscale set min=2 max=4`
