@@ -80,6 +80,6 @@ jobs:
             VERCEL_ENV_FLAG="--prod"
           fi
           
-          vercel --cwd ./packages/web/ pull --yes --environment=$VERCEL_ENV --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
+          vercel --cwd ./packages/web/ pull --yes --environment=$VERCEL_ENV --token=${{ secrets.VERCEL_TOKEN }}
           vercel --cwd ./packages/web/ build ./dist --token=${{ secrets.VERCEL_TOKEN }} $VERCEL_ENV_FLAG
           vercel --cwd ./packages/web/ deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} $VERCEL_ENV_FLAG > ./vercel.env
